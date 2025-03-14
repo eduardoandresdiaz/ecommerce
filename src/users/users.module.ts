@@ -3,10 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserService } from './users.service';
 import { UsersController } from './users.controller';
 import { UserRepository } from './users.repository';
-import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
+import { LoggerMiddleware } from '../middlewares/logger.middleware';
 import { User } from './user.entity';
-import { CloudinaryConfig } from 'src/config/cloudinary';
-import { FileUploadModule } from 'src/file-upload/file-upload.module';
+import { CloudinaryConfig } from '../config/cloudinary';
+import { FileUploadModule } from '../file-upload/file-upload.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), FileUploadModule],

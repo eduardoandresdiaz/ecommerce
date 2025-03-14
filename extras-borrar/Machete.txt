@@ -1,0 +1,72 @@
+npm i -g @nestjs/cli
+nest new ecommerce-eduardoandresdiaz  
+npm install eslint prettier eslint-config-prettier eslint-plugin-prettier --save-dev
+npm install @nestjs/typeorm @nestjs/config typeorm pg
+docker run --name postgres -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=mi_base -p 5432:5432 -d postgres
+docker run --rm -d --link postgres:db -p 8080:8080 --name adminer adminer
+postgresSql
+abrir postgres
+"C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres
+
+crear base
+CREATE DATABASE mi_nueva_base;
+listart bases
+\l
+git config --global core.autocrlf true
+$ npx jest --clearCache
+docker build -t nombre_de_la_imagen .
+
+# Construir la imagen con el nombre "eduardoandresdiaz"
+docker build -t eduardoandresdiaz .
+
+# Ejecutar el contenedor en segundo plano (-d) con el nombre "ecommerce"
+# y mapear el puerto 3000 del contenedor al 8080 de la máquina
+
+docker run -d -p 8080:3000 --name ecommerce eduardoandresdiaz
+docker start ecommerce
+
+docker-compose up -d
+
+
+
+# Ver los contenedores en ejecución
+docker ps
+
+# Ver todos los contenedores (incluyendo los detenidos)
+docker ps -a
+
+# Ver los logs del contenedor "ecommerce"
+docker logs -f ecommerce
+
+# Acceder al contenedor en una terminal interactiva
+docker exec -it ecommerce sh  # Usa "bash" si está disponible
+
+# Detener el contenedor "ecommerce"
+docker stop ecommerce
+docker stop $(docker ps -q)
+
+
+# Eliminar el contenedor "ecommerce" (debe estar detenido antes de eliminarlo)
+docker rm ecommerce
+
+# Listar todas las imágenes disponibles
+docker images
+
+# Eliminar la imagen "eduardoandresdiaz" (solo si no hay contenedores usándola)
+docker rmi eduardoandresdiaz
+
+
+
+
+
+1f0caa77-0469-4159-a84f-781390e81c59
+curl -X POST http://localhost:3000/file-upload/uploadImage/1f0caa77-0469-4159-a84f-781390e81c59 -H "Content-Type: multipart/form-data" -F "file=@path_to_your_image_file"
+
+npm install --legacy-peer-deps
+
+
+docker
+docker login -u eduardoandresdiaz
+dckr_pat_wQwwRUh-jVplVn1k8FAfSmr_x2U
+
+
