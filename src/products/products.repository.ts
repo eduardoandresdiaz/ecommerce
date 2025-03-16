@@ -1,7 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import data from '../utils/seeders/data.json'; // Importación correcta del JSON
-import { Category } from 'src/categories/categories.entity';
+import { Category } from '../categories/categories.entity';
 import { Product } from './products.entity';
 import { NotFoundException } from '@nestjs/common';
 

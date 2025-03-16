@@ -1,5 +1,5 @@
 import { ArrayMinSize, IsArray, IsNotEmpty, IsUUID } from 'class-validator';
-import { Product } from 'src/products/products.entity';
+import { Product } from '../products/products.entity';
 
 export class CreateOrderDto {
   @IsNotEmpty()

@@ -1,9 +1,9 @@
 import { TestingModule, Test } from '@nestjs/testing';
-import { User } from 'src/users/user.entity'; // Ruta relativa
+import { User } from '../users/user.entity'; // Ruta relativa
 import { UsersController } from '../users/users.controller'; // Ruta relativa
 import { AuthGuard } from '../guards/auth.guard'; // Ruta relativa
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../../src/users/users.service'; // Ruta relativa
+import { UserService } from '../users/users.service'; // Ruta relativa
 
 describe('UsersController', () => {
   let controller: UsersController;

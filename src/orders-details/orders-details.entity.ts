@@ -27,21 +27,3 @@ export class OrderDetail {
   products: Product[];
 }
 
-// import { Order } from "src/orders/orders.entity";
-// import { Column , JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-
-// export class OrderDetails {
-// @PrimaryGeneratedColumn('uuid')
-// id: string
-
-// }
-// @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
-// price: number
-
-// @OneToOne(() => Order, (order) => order.orderDetail)
-// @JoinColumn({ name: 'order_id' })
-// order: Order;
-// @ManyToMany(() => Product, (product))
-// @JoinTable({ name: 'order_details_products' })
-// products: Product[];
-// }

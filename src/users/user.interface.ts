@@ -12,9 +12,9 @@ import {
 } from '@nestjs/common';
 import { UserService } from './users.service';
 import { User } from './user.entity';
-import { validateUser } from 'src/utils/validate';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { FileUploadService } from 'src/file-upload/file-upload.service';
+import { validateUser } from '../utils/validate';
+import { AuthGuard } from '../guards/auth.guard';
+import { FileUploadService } from '../file-upload/file-upload.service';
 
 @Controller('users')
 export class UsersController {
