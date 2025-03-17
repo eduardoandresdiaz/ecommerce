@@ -17,7 +17,7 @@ export class FileUploadRepository {
               overlay: {
                 font_family: 'Arial',
                 font_size: 30,
-                text: 'eduardoandresdiaz',
+                text: 'conlara.com.ar',
               },
             }, // Agregar marca de agua
             { gravity: 'south_east', x: 10, y: 10 }, // Posicionar la marca de agua
