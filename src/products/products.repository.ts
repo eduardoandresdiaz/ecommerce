@@ -70,7 +70,7 @@ export class ProductRepository {
       product.category = category;
 
       await this.productRepository.save(product);
-      return 'Producto creado exitosamente';
+      return 'Producto creado exitosamente con ID: ' + product.id;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(`Error creando producto: ${error.message}`);
