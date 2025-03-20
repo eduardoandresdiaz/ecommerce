@@ -46,7 +46,7 @@ export class Product {
   @Column({
     type: 'text',
     default:
-      'https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg',
+      'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742432341/sinimagen_cjoinh.webp',
   })
   imgUrl: string;
 
