@@ -1,3 +1,23 @@
+tos');
+      }
+    }
+  }
+
+  // Función para encontrar un producto por nombre
+  async findProductByName(name: string): Promise<Product | string> {
+    const product = await this.productRepository.findOne({
+      where: { name },
+    });
+
+    if (product) {
+      return product;
+    } else {
+      return 'Este producto no existe';
+    }
+  }
+}
+
+--- Fin de la parte 1 del archivo "products.repository.ts". No hay más partes. ---
 import { Injectable } from '@nestjs/common';
 import { ProductRepository } from './products.repository';
 import { Product } from './products.entity';
@@ -15,13 +35,6 @@ export class ProductsService {
   }
 
   async createProduct(newCreateProduct: Product): Promise<string> {
-    // Asignar las fechas automáticamente
-    newCreateProduct.createdAt = new Date(); // Fecha actual
-    const expirationDate = new Date();
-    expirationDate.setDate(newCreateProduct.createdAt.getDate() + 15); // 15 días después
-    newCreateProduct.expiresAt = expirationDate;
-
-    // Enviar al repositorio para guardarlo
     return await this.productRepository.createProduct(newCreateProduct);
   }
 
@@ -38,3 +51,7 @@ export class ProductsService {
     return await this.productRepository.addProducts();
   }
 }
+
+--- Fin de la parte 1 del archivo "products.service.ts". No hay más partes. ---
+
+--- Fin de la parte 2 del archivo "products_combinado.txt". No hay más partes. ---

@@ -26,7 +26,7 @@ export class ProductRepository {
     return inStock;
   }
 
-  async getProductById(id: string) {
+  async getProductById(id: string): Promise<Product> {
     const product = await this.productRepository.findOneBy({ id });
     if (!product) {
       throw new NotFoundException(`Producto con ID ${id} no fue encontrado.`);
@@ -34,43 +34,51 @@ export class ProductRepository {
     return product;
   }
 
-  async updateProduct(id: string, product: Product) {
+  async updateProduct(id: string, product: Product): Promise<Product> {
     await this.productRepository.update(id, product);
     const updatedProduct = await this.productRepository.findOneBy({ id });
     return updatedProduct;
   }
 
-  async createProduct(products: Partial<Product>): Promise<string> {
+  async createProduct(productData: Partial<Product>): Promise<string> {
     // Verificar si el producto ya existe
-    const existingProduct = await this.findProductByName(products.name);
+    const existingProduct = await this.findProductByName(productData.name);
     if (typeof existingProduct !== 'string') {
       return 'El producto ya existe';
     }
 
     try {
-      // Verificar si la categoría existe, y si no, agregarla
+      // Verificar si la categoría existe o crearla
       let category = await this.categoriesRepository.findOne({
-        where: { name: products.category.name },
+        where: { name: productData.category.name },
       });
 
       if (!category) {
         category = new Category();
-        category.name = products.category.name;
+        category.name = productData.category.name;
         category = await this.categoriesRepository.save(category);
       }
 
       const product = new Product();
-      product.name = products.name;
-      product.description = products.description;
-      product.price = products.price;
-      product.stock = products.stock;
+      product.name = productData.name;
+      product.description = productData.description;
+      product.price = productData.price;
+      product.stock = productData.stock;
       product.imgUrl =
-        products.imgUrl ||
+        productData.imgUrl ||
         'https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg';
+      product.creatorEmail = productData.creatorEmail;
+
+      // Asignar fechas de creación y expiración
+      product.createdAt = new Date();
+      const expirationDate = new Date();
+      expirationDate.setDate(product.createdAt.getDate() + 15); // 15 días después
+      product.expiresAt = expirationDate;
+
       product.category = category;
 
       await this.productRepository.save(product);
-      return 'Producto creado exitosamente con ID: ' + product.id;
+      return `Producto creado exitosamente con ID: ${product.id}`;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(`Error creando producto: ${error.message}`);
@@ -107,7 +115,7 @@ export class ProductRepository {
     return category;
   }
 
-  async addProducts() {
+  async addProducts(): Promise<string> {
     const categories = await this.categoriesRepository.find();
 
     try {
@@ -132,6 +140,12 @@ export class ProductRepository {
           element.imgUrl ||
           'https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg';
         product.category = relatedCategory;
+
+        // Asignar fechas de creación y expiración
+        product.createdAt = new Date();
+        const expirationDate = new Date();
+        expirationDate.setDate(product.createdAt.getDate() + 15);
+        product.expiresAt = expirationDate;
 
         await this.productRepository
           .createQueryBuilder()

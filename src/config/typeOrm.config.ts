@@ -16,17 +16,28 @@ import { OrderDetail } from '../orders-details/orders-details.entity';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: parseInt(configService.get<string>('DB_PORT'), 10),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        entities: [User, Product, Category, Order, OrderDetail], // Asegúrate de incluir la entidad Category
-        synchronize: true, //sacar para hacer migraciones
-        logging: true,
-      }),
+      useFactory: (configService: ConfigService) => {
+        // Log temporal para verificar las credenciales
+        console.log('Credenciales cargadas:', {
+          host: configService.get<string>('DB_HOST'),
+          port: configService.get<string>('DB_PORT'),
+          username: configService.get<string>('DB_USERNAME'),
+          password: configService.get<string>('DB_PASSWORD'),
+          database: configService.get<string>('DB_NAME'),
+        });
+
+        return {
+          type: 'postgres',
+          host: configService.get<string>('DB_HOST'),
+          port: parseInt(configService.get<string>('DB_PORT'), 10),
+          username: configService.get<string>('DB_USERNAME'),
+          password: configService.get<string>('DB_PASSWORD'),
+          database: configService.get<string>('DB_NAME'),
+          entities: [User, Product, Category, Order, OrderDetail], // Asegúrate de incluir la entidad Category
+          synchronize: true, // Cambiar a false para hacer migraciones
+          logging: true, // Habilitar logs
+        };
+      },
     }),
   ],
 })

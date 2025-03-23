@@ -49,24 +49,29 @@ export class ProductsController {
 
   @HttpCode(200)
   @Post()
-  //@UseGuards(AuthGuard)
   async createProduct(@Body() newProduct: Product): Promise<string> {
-    if (validateProduct(newProduct)) {
-      try {
+    try {
+      // Validar el producto y manejar fechas
+      if (validateProduct(newProduct)) {
+        newProduct.createdAt = new Date(); // Fecha de creación
+        const expirationDate = new Date();
+        expirationDate.setDate(newProduct.createdAt.getDate() + 15); // 15 días después
+        newProduct.expiresAt = expirationDate;
+
         const result = await this.productsService.createProduct(newProduct);
         return result;
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-        } else {
-          throw new HttpException(
-            'Error desconocido al crear producto',
-            HttpStatus.BAD_REQUEST,
-          );
-        }
+      } else {
+        throw new HttpException('Producto inválido', HttpStatus.BAD_REQUEST);
       }
-    } else {
-      throw new HttpException('Producto invalido', HttpStatus.BAD_REQUEST);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          'Error desconocido al crear producto',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     }
   }
 

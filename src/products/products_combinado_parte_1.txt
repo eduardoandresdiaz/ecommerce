@@ -1,0 +1,338 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { ProductsService } from './products.service';
+import { Product } from './products.entity';
+import { AuthGuard } from '../guards/auth.guard';
+import { validateProduct } from '../utils/validate';
+import { Roles } from '../decorators/roles/roles.decorator';
+import { RolesGuard } from '../guards/roles.guard';
+import { Role } from '../enum/roles.enum';
+
+@Controller('products')
+export class ProductsController {
+  constructor(private readonly productsService: ProductsService) {}
+
+  @HttpCode(200)
+  @Get()
+  getProducts(@Query('page') page: number, @Query('limit') limit: number) {
+    console.log('entro aca');
+    if (page && limit) {
+      return this.productsService.getProducts(page, limit);
+    }
+    return this.productsService.getProducts(1, 5);
+  }
+
+  @Get('seeders')
+  addproducts() {
+    console.log('entro al controller del seeders');
+    return this.productsService.addProducts();
+  }
+
+  @HttpCode(200)
+  @Get(':id')
+  getProductById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.getProductById(id);
+  }
+
+  @HttpCode(200)
+  @Post()
+  //@UseGuards(AuthGuard)
+  async createProduct(@Body() newProduct: Product): Promise<string> {
+    if (validateProduct(newProduct)) {
+      try {
+        const result = await this.productsService.createProduct(newProduct);
+        return result;
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+        } else {
+          throw new HttpException(
+            'Error desconocido al crear producto',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
+    } else {
+      throw new HttpException('Producto invalido', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @HttpCode(200)
+  @Put(':id')
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  updateProduct(
+    @Query('id', ParseUUIDPipe) id: string,
+    @Body() updateProduct: Product,
+  ) {
+    if (validateProduct(updateProduct)) {
+      return this.productsService.updateProduct(id, updateProduct);
+    } else {
+      return 'producto no valido';
+    }
+  }
+
+  @HttpCode(200)
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  deleteProduct(@Param('id', ParseUUIDPipe) id: string) {
+    console.log('produto controller delete');
+    return this.productsService.deleteProduct(id);
+  }
+}
+
+--- Fin de la parte 1 del archivo "products.controller.ts". No hay más partes. ---
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Category } from '../categories/categories.entity';
+import { OrderDetail } from '../orders-details/orders-details.entity';
+
+@Entity({ name: 'products' })
+export class Product {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: false,
+    unique: true,
+    length: 50,
+  })
+  name: string;
+
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  description: string;
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+  })
+  price: number;
+
+  @Column({
+    type: 'int',
+    default: 0,
+    nullable: false,
+  })
+  stock: number;
+
+  @Column({
+    type: 'text',
+    default:
+      'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742432341/sinimagen_cjoinh.webp',
+  })
+  imgUrl: string;
+
+  @ManyToMany(() => OrderDetail, (orderDetail) => orderDetail.products)
+  orderDetail: OrderDetail[];
+
+  @ManyToOne(() => Category, (category) => category.products)
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
+}
+
+--- Fin de la parte 1 del archivo "products.entity.ts". No hay más partes. ---
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  imgUrl: string;
+}
+
+--- Fin de la parte 1 del archivo "products.interface.ts". No hay más partes. ---
+import { Module } from '@nestjs/common';
+import { ProductsService } from './products.service';
+import { ProductsController } from './products.controller';
+import { ProductRepository } from './products.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Product } from './products.entity';
+import { Category } from '../categories/categories.entity';
+import { CategoriesRepository } from '../categories/categories.repository';
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([Product]),
+    TypeOrmModule.forFeature([Category]),
+  ],
+  controllers: [ProductsController],
+  providers: [ProductsService, ProductRepository, CategoriesRepository],
+})
+export class ProductsModule {}
+
+--- Fin de la parte 1 del archivo "products.module.ts". No hay más partes. ---
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import data from '../utils/seeders/data.json'; // Importación correcta del JSON
+import { Category } from '../categories/categories.entity';
+import { Product } from './products.entity';
+import { NotFoundException } from '@nestjs/common';
+
+export class ProductRepository {
+  constructor(
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
+    @InjectRepository(Category)
+    private categoriesRepository: Repository<Category>,
+  ) {}
+
+  async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {
+    const products = await this.productRepository.find({
+      relations: {
+        category: true,
+      },
+    });
+    let inStock = products.filter((product) => product.stock > 0);
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    inStock = inStock.slice(startIndex, endIndex);
+    return inStock;
+  }
+
+  async getProductById(id: string) {
+    const product = await this.productRepository.findOneBy({ id });
+    if (!product) {
+      throw new NotFoundException(`Producto con ID ${id} no fue encontrado.`);
+    }
+    return product;
+  }
+
+  async updateProduct(id: string, product: Product) {
+    await this.productRepository.update(id, product);
+    const updatedProduct = await this.productRepository.findOneBy({ id });
+    return updatedProduct;
+  }
+
+  async createProduct(products: Partial<Product>): Promise<string> {
+    // Verificar si el producto ya existe
+    const existingProduct = await this.findProductByName(products.name);
+    if (typeof existingProduct !== 'string') {
+      return 'El producto ya existe';
+    }
+
+    try {
+      // Verificar si la categoría existe, y si no, agregarla
+      let category = await this.categoriesRepository.findOne({
+        where: { name: products.category.name },
+      });
+
+      if (!category) {
+        category = new Category();
+        category.name = products.category.name;
+        category = await this.categoriesRepository.save(category);
+      }
+
+      const product = new Product();
+      product.name = products.name;
+      product.description = products.description;
+      product.price = products.price;
+      product.stock = products.stock;
+      product.imgUrl =
+        products.imgUrl ||
+        'https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg';
+      product.category = category;
+
+      await this.productRepository.save(product);
+      return 'Producto creado exitosamente con ID: ' + product.id;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Error creando producto: ${error.message}`);
+      } else {
+        throw new Error('Error desconocido al crear producto');
+      }
+    }
+  }
+
+  async deleteProduct(id: string): Promise<Partial<Product>> {
+    const productToDelete = await this.productRepository.findOneBy({ id });
+
+    if (!productToDelete) {
+      throw new NotFoundException(`Producto con ID ${id} no fue encontrado.`);
+    }
+
+    await this.productRepository.remove(productToDelete);
+    return productToDelete;
+  }
+
+  async verifyAndAddCategories(
+    categories: Category[],
+    categoryName: string,
+  ): Promise<Category> {
+    let category = categories.find((cat) => cat.name === categoryName);
+
+    if (!category) {
+      category = new Category();
+      category.name = categoryName;
+      await this.categoriesRepository.save(category);
+      categories = await this.categoriesRepository.find();
+    }
+
+    return category;
+  }
+
+  async addProducts() {
+    const categories = await this.categoriesRepository.find();
+
+    try {
+      const productsArray: any[] = Array.isArray(data) ? data : [];
+
+      if (productsArray.length === 0) {
+        throw new Error('No se encontraron productos');
+      }
+
+      for (const element of productsArray) {
+        const relatedCategory = await this.verifyAndAddCategories(
+          categories,
+          element.category,
+        );
+
+        const product = new Product();
+        product.name = element.name;
+        product.description = element.description;
+        product.price = element.price;
+        product.stock = element.stock;
+        product.imgUrl =
+          element.imgUrl ||
+          'https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg';
+        product.category = relatedCategory;
+
+        await this.productRepository
+          .createQueryBuilder()
+          .insert()
+          .into(Product)
+          .values(product)
+          .orUpdate(['description', 'price', 'stock'], ['name'])
+          .execute();
+      }
+
+      return 'Productos agregados';
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Error agregando productos: ${error.message}`);
+      } else {
+        throw new Error('Error desconocido al agregar produc
+--- Fin de la parte 1 del archivo "products_combinado.txt". Parte siguiente: 2/2 ---
