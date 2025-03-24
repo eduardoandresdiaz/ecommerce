@@ -42,6 +42,18 @@ export class ProductsController {
   }
 
   @HttpCode(200)
+  @Get('by-creator')
+  getProductsByCreatorEmail(@Query('creatorEmail') creatorEmail: string) {
+    if (!creatorEmail) {
+      throw new HttpException(
+        'Debe proporcionar el correo del creador',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return this.productsService.getProductsByCreatorEmail(creatorEmail);
+  }
+
+  @HttpCode(200)
   @Get(':id')
   getProductById(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.getProductById(id);

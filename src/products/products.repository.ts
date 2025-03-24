@@ -1,8 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import data from '../utils/seeders/data.json'; // Importación correcta del JSON
-import { Category } from '../categories/categories.entity';
 import { Product } from './products.entity';
+import { Category } from '../categories/categories.entity';
 import { NotFoundException } from '@nestjs/common';
 
 export class ProductRepository {
@@ -26,6 +25,15 @@ export class ProductRepository {
     return inStock;
   }
 
+  async getProductsByCreatorEmail(creatorEmail: string): Promise<Product[]> {
+    return await this.productRepository.find({
+      where: { creatorEmail },
+      relations: {
+        category: true, // Incluye la relación con categorías
+      },
+    });
+  }
+
   async getProductById(id: string): Promise<Product> {
     const product = await this.productRepository.findOneBy({ id });
     if (!product) {
@@ -41,14 +49,12 @@ export class ProductRepository {
   }
 
   async createProduct(productData: Partial<Product>): Promise<string> {
-    // Verificar si el producto ya existe
     const existingProduct = await this.findProductByName(productData.name);
     if (typeof existingProduct !== 'string') {
       return 'El producto ya existe';
     }
 
     try {
-      // Verificar si la categoría existe o crearla
       let category = await this.categoriesRepository.findOne({
         where: { name: productData.category.name },
       });
@@ -69,10 +75,9 @@ export class ProductRepository {
         'https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg';
       product.creatorEmail = productData.creatorEmail;
 
-      // Asignar fechas de creación y expiración
       product.createdAt = new Date();
       const expirationDate = new Date();
-      expirationDate.setDate(product.createdAt.getDate() + 15); // 15 días después
+      expirationDate.setDate(product.createdAt.getDate() + 15);
       product.expiresAt = expirationDate;
 
       product.category = category;
@@ -99,27 +104,23 @@ export class ProductRepository {
     return productToDelete;
   }
 
-  async verifyAndAddCategories(
-    categories: Category[],
-    categoryName: string,
-  ): Promise<Category> {
-    let category = categories.find((cat) => cat.name === categoryName);
+  async findProductByName(name: string): Promise<Product | string> {
+    const product = await this.productRepository.findOne({
+      where: { name },
+    });
 
-    if (!category) {
-      category = new Category();
-      category.name = categoryName;
-      await this.categoriesRepository.save(category);
-      categories = await this.categoriesRepository.find();
+    if (product) {
+      return product;
+    } else {
+      return 'Este producto no existe';
     }
-
-    return category;
   }
 
   async addProducts(): Promise<string> {
     const categories = await this.categoriesRepository.find();
 
     try {
-      const productsArray: any[] = Array.isArray(data) ? data : [];
+      const productsArray: any[] = []; // Importa tus datos JSON de seeders aquí
 
       if (productsArray.length === 0) {
         throw new Error('No se encontraron productos');
@@ -141,19 +142,12 @@ export class ProductRepository {
           'https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg';
         product.category = relatedCategory;
 
-        // Asignar fechas de creación y expiración
         product.createdAt = new Date();
         const expirationDate = new Date();
         expirationDate.setDate(product.createdAt.getDate() + 15);
         product.expiresAt = expirationDate;
 
-        await this.productRepository
-          .createQueryBuilder()
-          .insert()
-          .into(Product)
-          .values(product)
-          .orUpdate(['description', 'price', 'stock'], ['name'])
-          .execute();
+        await this.productRepository.save(product);
       }
 
       return 'Productos agregados';
@@ -166,16 +160,19 @@ export class ProductRepository {
     }
   }
 
-  // Función para encontrar un producto por nombre
-  async findProductByName(name: string): Promise<Product | string> {
-    const product = await this.productRepository.findOne({
-      where: { name },
-    });
+  async verifyAndAddCategories(
+    categories: Category[],
+    categoryName: string,
+  ): Promise<Category> {
+    let category = categories.find((cat) => cat.name === categoryName);
 
-    if (product) {
-      return product;
-    } else {
-      return 'Este producto no existe';
+    if (!category) {
+      category = new Category();
+      category.name = categoryName;
+      await this.categoriesRepository.save(category);
+      categories = await this.categoriesRepository.find();
     }
+
+    return category;
   }
 }

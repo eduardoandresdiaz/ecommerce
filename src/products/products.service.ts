@@ -10,6 +10,10 @@ export class ProductsService {
     return this.productRepository.getProducts(page, limit);
   }
 
+  async getProductsByCreatorEmail(creatorEmail: string): Promise<Product[]> {
+    return await this.productRepository.getProductsByCreatorEmail(creatorEmail);
+  }
+
   async getProductById(id: string): Promise<Product> {
     return await this.productRepository.getProductById(id);
   }
