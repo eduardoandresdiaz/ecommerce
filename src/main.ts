@@ -32,6 +32,8 @@ async function bootstrap() {
   const loggerMiddleware = new LoggerMiddleware();
   app.use(loggerMiddleware.use);
   app.useGlobalPipes(new ValidationPipe());
+  console.log('Zona horaria configurada:', process.env.TZ || 'No configurada');
+  console.log('Hora local según el backend:', new Date().toLocaleString());
 
   await app.listen(process.env.PORT ?? 3000);
 }
