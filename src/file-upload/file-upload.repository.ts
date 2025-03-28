@@ -22,7 +22,7 @@ export class FileUploadRepository {
               },
             }, // Agregar marca de agua
             { gravity: 'center' }, // Posicionar la marca de agua en el centro
-            { color: '#ffffff', opacity: 80, border: '2px_solid_black' }, // Estilo de la marca de agua (color blanco y borde negro)
+            { color: '#0000ff', opacity: 100, border: '2px_solid_black' }, // Estilo de la marca de agua (color blanco y borde negro)
           ],
         },
         (error, result) => {
