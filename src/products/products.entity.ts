@@ -47,7 +47,7 @@ export class Product {
   @Column({
     type: 'text',
     default:
-      'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742432341/sinimagen_cjoinh.webp',
+      'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742769896/cyi4pszz0ighbcdgpujw.jpg',
   })
   imgUrl: string;
 
