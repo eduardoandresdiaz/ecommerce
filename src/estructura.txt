@@ -1,0 +1,99 @@
+Listado de rutas de carpetas para el volumen BOOTCAMP
+El n£mero de serie del volumen es CA5C-CC7B
+C:.
+³   app.module.ts
+³   code_export.js
+³   data-source.ts
+³   estructura.txt
+³   main.ts
+³   
+ÃÄÄÄassets
+³   ÀÄÄÄimage
+³           mouse.jpg
+³           
+ÃÄÄÄauth
+³       auth.controller.ts
+³       auth.module.ts
+³       auth.service.ts
+³       
+ÃÄÄÄcategories
+³       categories.controller.ts
+³       categories.entity.ts
+³       categories.module.ts
+³       categories.repository.ts
+³       categories.service.ts
+³       
+ÃÄÄÄconfig
+³       cloudinary.ts
+³       typeOrm.config.ts
+³       
+ÃÄÄÄdecorators
+³   ÀÄÄÄroles
+³           roles.decorator.ts
+³           
+ÃÄÄÄdto
+³       create-order.dto.ts
+³       create-user.dto.ts
+³       login.user.dto.ts
+³       update-user.dto.ts
+³       
+ÃÄÄÄenum
+³       roles.enum.ts
+³       
+ÃÄÄÄfile-upload
+³       code_export.js
+³       file-upload.controller.ts
+³       file-upload.module.ts
+³       file-upload.repository.ts
+³       file-upload.service.ts
+³       
+ÃÄÄÄguards
+³       auth.guard.ts
+³       roles.guard.ts
+³       
+ÃÄÄÄmiddlewares
+³       logger.middleware.ts
+³       
+ÃÄÄÄmigrations
+³       1743228559632-AddDniToUser.ts
+³       
+ÃÄÄÄorders
+³       orders.controller.ts
+³       orders.entity.ts
+³       orders.module.ts
+³       orders.repository.ts
+³       orders.service.ts
+³       
+ÃÄÄÄorders-details
+³       orders-details.entity.ts
+³       
+ÃÄÄÄproducts
+³       code_export.js
+³       products.controller.ts
+³       products.entity.ts
+³       products.interface.ts
+³       products.module.ts
+³       products.repository.ts
+³       products.service.ts
+³       
+ÃÄÄÄtypes
+³       custom.d.ts
+³       
+ÃÄÄÄusers
+³       code_export.js
+³       user.entity.ts
+³       user.interface.ts
+³       users.controller.spec.ts
+³       users.controller.ts
+³       users.module.ts
+³       users.repository.ts
+³       users.service.ts
+³       users_combinado_parte_1.txt
+³       users_combinado_parte_2.txt
+³       
+ÀÄÄÄutils
+    ³   validate.ts
+    ³   
+    ÀÄÄÄseeders
+            data.json
+            
