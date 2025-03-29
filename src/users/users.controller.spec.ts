@@ -12,6 +12,7 @@ describe('UsersController', () => {
     {
       id: '1',
       name: 'Eduardo',
+      dni: '12345678', // Añadido valor al campo dni
       password: 'Edudiaz1234$',
       email: 'eduardoandresdiazBicho@gmail.com',
       isAdmin: true,
@@ -24,6 +25,7 @@ describe('UsersController', () => {
     {
       id: '2',
       name: 'Eduardo 2',
+      dni: '87654321', // Añadido valor al campo dni
       password: 'Edudiaz1234$',
       email: 'eduardoandresdiazBicho2@gmail.com',
       isAdmin: true,
@@ -83,6 +85,7 @@ describe('UsersController', () => {
     expect(result).toEqual(mockUsers[0]);
     expect(mockUserService.getUserById).toHaveBeenCalledWith('1');
   });
+
   it('debe eliminar un usuario por ID', async () => {
     const userId = '1';
     const deleteResult = { affected: 1 }; // Ejemplo de respuesta esperada
@@ -94,12 +97,14 @@ describe('UsersController', () => {
     expect(result).toEqual(deleteResult);
     expect(mockUserService.deleteUser).toHaveBeenCalledWith(userId);
   });
+
   it('debe actualizar un usuario', async () => {
     const userId = '1';
     const updateUserDto = { name: 'Eduardo Actualizado' }; // Datos actualizados
     const updatedUser = {
       id: userId,
       name: 'Eduardo Actualizado',
+      dni: '12345678', // Mantener dni en los datos actualizados
       password: 'Edudiaz1234$',
       email: 'eduardoandresdiazBicho@gmail.com',
       isAdmin: true,
