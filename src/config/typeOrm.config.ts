@@ -34,7 +34,7 @@ import { OrderDetail } from '../orders-details/orders-details.entity';
           password: configService.get<string>('DB_PASSWORD'),
           database: configService.get<string>('DB_NAME'),
           entities: [User, Product, Category, Order, OrderDetail], // Asegúrate de incluir la entidad Category
-          synchronize: true, // Cambiar a false para hacer migraciones
+          synchronize: false, // Cambiar a false para hacer migraciones
           logging: true, // Habilitar logs
         };
       },
