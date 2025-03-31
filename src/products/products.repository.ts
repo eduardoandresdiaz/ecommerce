@@ -47,33 +47,34 @@ export class ProductRepository {
     return product;
   }
 
-  async updateProduct(id: string, product: Partial<Product>): Promise<Product> {
+  async updateProduct(
+    id: string,
+    productData: Partial<Product>,
+  ): Promise<Product> {
     // Validar existencia del producto
     const existingProduct = await this.productRepository.findOneBy({ id });
     if (!existingProduct) {
       throw new NotFoundException(`Producto con ID ${id} no fue encontrado.`);
     }
 
-    // Validar categoría si se incluye
-    if (product.category && product.category.id) {
+    // Validar y asociar nueva categoría si se proporciona
+    if (productData.category && productData.category.id) {
       const category = await this.categoriesRepository.findOneBy({
-        id: product.category.id,
+        id: productData.category.id,
       });
       if (!category) {
         throw new NotFoundException(
-          `Categoría con ID ${product.category.id} no fue encontrada.`,
+          `Categoría con ID ${productData.category.id} no fue encontrada.`,
         );
       }
-      product.category = category;
+      productData.category = category;
     }
 
-    // Actualizar el producto
-    await this.productRepository.save({ id, ...product });
+    // Actualizar producto
+    await this.productRepository.save({ id, ...productData });
     return await this.productRepository.findOne({
       where: { id },
-      relations: {
-        category: true,
-      },
+      relations: { category: true },
     });
   }
 
@@ -147,7 +148,7 @@ export class ProductRepository {
     const categories = await this.categoriesRepository.find();
 
     try {
-      const productsArray: any[] = []; // Importa tus datos JSON de seeders aquí
+      const productsArray: any[] = []; // Aquí deberías importar tus datos de seeders
 
       if (productsArray.length === 0) {
         throw new Error('No se encontraron productos');
