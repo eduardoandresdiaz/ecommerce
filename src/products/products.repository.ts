@@ -51,13 +51,11 @@ export class ProductRepository {
     id: string,
     productData: Partial<Product>,
   ): Promise<Product> {
-    // Validar existencia del producto
     const existingProduct = await this.productRepository.findOneBy({ id });
     if (!existingProduct) {
       throw new NotFoundException(`Producto con ID ${id} no fue encontrado.`);
     }
 
-    // Validar y asociar nueva categoría si se proporciona
     if (productData.category && productData.category.id) {
       const category = await this.categoriesRepository.findOneBy({
         id: productData.category.id,
@@ -70,7 +68,6 @@ export class ProductRepository {
       productData.category = category;
     }
 
-    // Actualizar producto
     await this.productRepository.save({ id, ...productData });
     return await this.productRepository.findOne({
       where: { id },
@@ -103,6 +100,7 @@ export class ProductRepository {
         productData.imgUrl ||
         'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742769896/cyi4pszz0ighbcdgpujw.jpg';
       product.creatorEmail = productData.creatorEmail;
+      product.telefono = productData.telefono || null;
 
       product.createdAt = new Date();
       const expirationDate = new Date();
@@ -148,27 +146,45 @@ export class ProductRepository {
     const categories = await this.categoriesRepository.find();
 
     try {
-      const productsArray: any[] = []; // Aquí deberías importar tus datos de seeders
-
-      if (productsArray.length === 0) {
-        throw new Error('No se encontraron productos');
-      }
+      const productsArray: any[] = [
+        {
+          name: 'Producto ejemplo 1',
+          description: 'Descripción del producto ejemplo 1',
+          price: 500,
+          stock: 10,
+          imgUrl: 'https://via.placeholder.com/150',
+          category: 'Categoría ejemplo 1',
+          telefono: '123-456-789',
+        },
+        {
+          name: 'Producto ejemplo 2',
+          description: 'Descripción del producto ejemplo 2',
+          price: 1000,
+          stock: 20,
+          imgUrl: 'https://via.placeholder.com/150',
+          category: 'Categoría ejemplo 2',
+          telefono: '987-654-321',
+        },
+      ];
 
       for (const element of productsArray) {
-        const relatedCategory = await this.verifyAndAddCategories(
-          categories,
-          element.category,
-        );
+        let category = categories.find((cat) => cat.name === element.category);
+
+        if (!category) {
+          category = new Category();
+          category.name = element.category;
+          await this.categoriesRepository.save(category);
+          categories.push(category);
+        }
 
         const product = new Product();
         product.name = element.name;
         product.description = element.description;
         product.price = element.price;
         product.stock = element.stock;
-        product.imgUrl =
-          element.imgUrl ||
-          'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742769896/cyi4pszz0ighbcdgpujw.jpg';
-        product.category = relatedCategory;
+        product.imgUrl = element.imgUrl;
+        product.telefono = element.telefono;
+        product.category = category;
 
         product.createdAt = new Date();
         const expirationDate = new Date();
@@ -178,7 +194,7 @@ export class ProductRepository {
         await this.productRepository.save(product);
       }
 
-      return 'Productos agregados';
+      return 'Productos agregados correctamente';
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(`Error agregando productos: ${error.message}`);

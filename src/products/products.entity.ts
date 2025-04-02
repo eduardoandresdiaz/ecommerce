@@ -55,18 +55,26 @@ export class Product {
     type: 'varchar',
     nullable: false,
     length: 100,
-    default: 'defaull@example.com',
+    default: 'default@example.com',
   })
-  creatorEmail: string; // Nuevo campo para el correo del creador
+  creatorEmail: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    length: 15,
+    default: null,
+  })
+  telefono: string; // Número de teléfono del vendedor
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date; // Fecha automática de creación
+  createdAt: Date;
 
   @Column({
     type: 'timestamp',
     nullable: true,
   })
-  expiresAt: Date; // Fecha de expiración calculada automáticamente
+  expiresAt: Date;
 
   @ManyToMany(() => OrderDetail, (orderDetail) => orderDetail.products)
   orderDetail: OrderDetail[];

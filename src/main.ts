@@ -22,7 +22,11 @@ async function bootstrap() {
 
   // Habilitar CORS con múltiples orígenes permitidos
   app.enableCors({
-    origin: ['http://localhost:5173', 'https://conlara.onrender.com', 'https://conlara.com.ar'], // Agrega todos los dominios permitidos
+    origin: [
+      'http://localhost:5173',
+      'https://conlara.onrender.com',
+      'https://conlara.com.ar',
+    ], // Agrega todos los dominios permitidos
     methods: 'GET,POST,PUT,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization',
   });
