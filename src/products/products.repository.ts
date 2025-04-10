@@ -11,6 +11,46 @@ export class ProductRepository {
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
   ) {}
+  async findProductsByKeywords(input: string): Promise<Product[]> {
+    const keywords = input
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 1); // Ignora palabras muy cortas como "a", "y", etc.
+
+    if (keywords.length === 0) return [];
+
+    const query = this.productRepository.createQueryBuilder('product');
+
+    const whereExpressions: string[] = [];
+    const parameters: Record<string, string> = {};
+
+    keywords.forEach((word, index) => {
+      const param = `%${word}%`;
+      parameters[`kw${index}`] = param;
+
+      whereExpressions.push(`
+        LOWER(product.name) LIKE :kw${index}
+        OR LOWER(product.description) LIKE :kw${index}
+      `);
+    });
+
+    query.where(whereExpressions.join(' OR '), parameters);
+
+    const products = await query.getMany();
+
+    const rankedProducts = products
+      .map((product) => {
+        const text = (product.name + ' ' + product.description).toLowerCase();
+
+        const matchCount = keywords.filter((kw) => text.includes(kw)).length;
+
+        return { product, matchCount };
+      })
+      .filter((p) => p.matchCount > 0) // ✅ Excluye los que no coinciden con ninguna palabra
+      .sort((a, b) => b.matchCount - a.matchCount); // Ordena por relevancia
+
+    return rankedProducts.map(({ product }) => product);
+  }
 
   async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {
     const products = await this.productRepository.find({

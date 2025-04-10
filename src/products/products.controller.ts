@@ -25,6 +25,11 @@ import { Role } from '../enum/roles.enum';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Get('search')
+  async findProductsByKeywords(@Query('q') q: string): Promise<Product[]> {
+    return await this.productsService.findProductsByKeywords(q);
+  }
+
   @HttpCode(200)
   @Get()
   getProducts(@Query('page') page: number, @Query('limit') limit: number) {
