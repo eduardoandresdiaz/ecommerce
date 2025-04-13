@@ -102,40 +102,38 @@ export class ProductsController {
   async deleteProduct(@Param('id', ParseUUIDPipe) id: string) {
     return await this.productsService.deleteProduct(id);
   }
-
-  @HttpCode(200)
   @Get('share/:id')
-  async shareProduct(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res() res: Response,
-  ) {
+  async shareProduct(@Param('id') id: string, @Res() res: Response) {
     const product = await this.productsService.getProductById(id);
-
     if (!product) {
-      return res.status(404).send('Producto no encontrado');
+      return res.status(HttpStatus.NOT_FOUND).send('Producto no encontrado');
     }
 
+    const productUrl = `https://conlara.com.ar/productos/${id}`;
     const html = `
       <!DOCTYPE html>
       <html lang="es">
-        <head>
-          <meta charset="UTF-8" />
-          <title>${product.name}</title>
-          <meta property="og:type" content="product" />
-          <meta property="og:title" content="${product.name}" />
-          <meta property="og:description" content="${product.description}" />
-          <meta property="og:image" content="${product.imgUrl}" />
-          <meta property="og:url" content="https://conlara.com.ar/productos/${product.id}" />
-          <meta property="og:site_name" content="Conlara Tienda" />
-          <meta property="fb:app_id" content="1234567890" />
-          <meta http-equiv="refresh" content="0;url=https://conlara.com.ar/productos/${product.id}" />
-        </head>
-        <body></body>
+      <head>
+        <meta charset="utf-8" />
+        <title>${product.name} - Conlara Tienda</title>
+        <meta name="description" content="${product.description}" />
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content="${product.name}" />
+        <meta property="og:description" content="${product.description}" />
+        <meta property="og:image" content="${product.imgUrl}" />
+        <meta property="og:url" content="${productUrl}" />
+        <meta property="og:site_name" content="Conlara Tienda" />
+        <meta property="fb:app_id" content="TU_FB_APP_ID" />
+      </head>
+      <body>
+        <script>
+          window.location.href = "${productUrl}";
+        </script>
+      </body>
       </html>
     `;
 
-    res.setHeader('Content-Type', 'text/html');
-    return res.send(html);
+    res.status(HttpStatus.OK).send(html);
   }
 }
 
