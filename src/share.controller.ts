@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
 import { Response } from 'express';
-import fetch from 'node-fetch'; // Asegurate de tener instalado `node-fetch`
+import { fetch } from 'undici'; // 👈 cambiamos node-fetch por undici
 
 @Controller('productos/share')
 export class ShareController {
