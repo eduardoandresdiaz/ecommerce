@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-//import { TypeOrmModule } from '@nestjs/typeorm';
+// import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { OrdersModule } from './orders/orders.module';
 import { CategoriesModule } from './categories/categories.module';
+import { ShareController } from './share.controller'; // 👈 nuevo controlador
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { CategoriesModule } from './categories/categories.module';
     }),
     FileUploadModule,
   ],
-  controllers: [],
+  controllers: [ShareController], // 👈 lo agregás acá
   providers: [],
 })
 export class AppModule {}
