@@ -103,16 +103,21 @@ export class ProductsController {
     return await this.productsService.deleteProduct(id);
   }
   @Get('share/:id')
-  async shareProduct(@Param('id') id: string, @Res() res: Response) {
-    const product = await this.productsService.getProductById(id);
-    if (!product) {
-      return res.status(HttpStatus.NOT_FOUND).send('Producto no encontrado');
-    }
+async shareProduct(@Param('id') id: string, @Res() res: Response) {
+  const product = await this.productsService.getProductById(id);
+  if (!product) {
+    return res.status(HttpStatus.NOT_FOUND).send('Producto no encontrado');
+  }
 
-    const productUrl = `https://conlara.com.ar/productos/${id}`;
-    const html = `
-      <!DOCTYPE html>
-      <html lang="es">
+  // URL de conlara.com.ar que es la que se debe mostrar en las redes sociales
+  const productUrl = `https://conlara.com.ar/productos/share/${id}`;
+  // URL real de ecommerce-9558.onrender.com para redirigir a los usuarios
+  const realProductUrl = `https://ecommerce-9558.onrender.com/products/share/${id}`;
+
+  // HTML con metadatos OG que muestran el dominio de Conlara
+  const html = `
+    <!DOCTYPE html>
+    <html lang="es">
       <head>
         <meta charset="utf-8" />
         <title>${product.name} - Conlara Tienda</title>
@@ -124,17 +129,64 @@ export class ProductsController {
         <meta property="og:url" content="${productUrl}" />
         <meta property="og:site_name" content="Conlara Tienda" />
         <meta property="fb:app_id" content="TU_FB_APP_ID" />
+        
+        <!-- Meta refresh para redirigir automáticamente al realProductUrl -->
+        <meta http-equiv="refresh" content="3; url=${realProductUrl}" />
       </head>
       <body>
         <script>
-          window.location.href = "${productUrl}";
+          // Redirige automáticamente a la URL real después de 3 segundos
+          window.location.href = "${realProductUrl}";
         </script>
       </body>
-      </html>
-    `;
+    </html>
+  `;
 
-    res.status(HttpStatus.OK).send(html);
+  res.status(HttpStatus.OK).send(html);
+}
+@Get('share/:id')
+async shareProduct(@Param('id') id: string, @Res() res: Response) {
+  const product = await this.productsService.getProductById(id);
+  if (!product) {
+    return res.status(HttpStatus.NOT_FOUND).send('Producto no encontrado');
   }
+
+  // URL de conlara.com.ar que es la que se debe mostrar en las redes sociales
+  const productUrl = `https://conlara.com.ar/productos/share/${id}`;
+  // URL real de ecommerce-9558.onrender.com para redirigir a los usuarios
+  const realProductUrl = `https://ecommerce-9558.onrender.com/products/share/${id}`;
+
+  // HTML con metadatos OG que muestran el dominio de Conlara
+  const html = `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="utf-8" />
+        <title>${product.name} - Conlara Tienda</title>
+        <meta name="description" content="${product.description}" />
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content="${product.name}" />
+        <meta property="og:description" content="${product.description}" />
+        <meta property="og:image" content="${product.imgUrl}" />
+        <meta property="og:url" content="${productUrl}" />
+        <meta property="og:site_name" content="Conlara Tienda" />
+        <meta property="fb:app_id" content="TU_FB_APP_ID" />
+        
+        <!-- Meta refresh para redirigir automáticamente al realProductUrl -->
+        <meta http-equiv="refresh" content="3; url=${realProductUrl}" />
+      </head>
+      <body>
+        <script>
+          // Redirige automáticamente a la URL real después de 3 segundos
+          window.location.href = "${realProductUrl}";
+        </script>
+      </body>
+    </html>
+  `;
+
+  res.status(HttpStatus.OK).send(html);
+}
+
 }
 
 // import {
