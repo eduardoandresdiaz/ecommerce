@@ -32,11 +32,12 @@ export class ShareController {
       res.setHeader('Content-Type', 'text/html');
 
       res.send(html);
-    } catch (err) {
-      console.error('Error al obtener HTML remoto:', err);
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message ?? 'Error desconocido';
+      console.error('Error al obtener HTML remoto:', errorMessage);
       res
         .status(500)
-        .send(`Error al obtener el HTML del producto: ${err.message}`);
+        .send(`Error al obtener el HTML del producto: ${errorMessage}`);
     }
   }
 }
