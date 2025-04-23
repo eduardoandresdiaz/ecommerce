@@ -12,7 +12,8 @@ describe('UsersController', () => {
     {
       id: '1',
       name: 'Eduardo',
-      dni: '12345678', // Añadido valor al campo dni
+      nickname: 'Eddie', // 🔥 Nuevo atributo agregado
+      dni: '12345678',
       password: 'Edudiaz1234$',
       email: 'eduardoandresdiazBicho@gmail.com',
       isAdmin: true,
@@ -20,12 +21,15 @@ describe('UsersController', () => {
       country: 'Colombia',
       address: 'Calle 123',
       city: 'Bogota',
+      imgUrlUser:
+        'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
       orders: [],
     },
     {
       id: '2',
       name: 'Eduardo 2',
-      dni: '87654321', // Añadido valor al campo dni
+      nickname: 'Edu2', // 🔥 Nuevo atributo agregado
+      dni: '87654321',
       password: 'Edudiaz1234$',
       email: 'eduardoandresdiazBicho2@gmail.com',
       isAdmin: true,
@@ -33,6 +37,8 @@ describe('UsersController', () => {
       country: 'Colombia',
       address: 'Calle 123',
       city: 'Bogota',
+      imgUrlUser:
+        'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
       orders: [],
     },
   ];
