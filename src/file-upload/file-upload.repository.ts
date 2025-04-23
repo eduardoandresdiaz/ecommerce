@@ -18,7 +18,7 @@ export class FileUploadRepository {
                 font_family: 'Arial',
                 font_size: 30,
                 font_weight: 'bold', // Hacer el texto en negrita
-                text: '@',
+                text: '  ',
               },
             }, // Agregar marca de agua
             { gravity: 'center' }, // Posicionar la marca de agua en el centro
