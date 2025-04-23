@@ -44,7 +44,11 @@ export class AuthService {
     await this.userRepository.createUser({
       ...user,
       password: hashedPassword,
+      imgUrlUser:
+        user.imgUrlUser ||
+        'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // Asegurar que tenga un valor
     });
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, confirmPassword, ...userWithoutPass } = user;
 

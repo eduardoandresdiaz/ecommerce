@@ -33,13 +33,22 @@ export class UserRepository {
   }
 
   async createUser(
-    user: Omit<User, 'id'>,
+    user: Partial<Omit<User, 'id'>>,
   ): Promise<Omit<User, 'password' | 'isAdmin'>> {
     const newUser = await this.usersRepository.save(user);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, isAdmin, ...userWithoutPassword } = newUser;
     return userWithoutPassword;
   }
+
+  // async createUser(
+  //   user: Omit<User, 'id'>,
+  // ): Promise<Omit<User, 'password' | 'isAdmin'>> {
+  //   const newUser = await this.usersRepository.save(user);
+  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   const { password, isAdmin, ...userWithoutPassword } = newUser;
+  //   return userWithoutPassword;
+  // }
 
   async updateUser(
     id: string,

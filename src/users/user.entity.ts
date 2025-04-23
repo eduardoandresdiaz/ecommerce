@@ -9,6 +9,9 @@ export class User {
   @Column({ type: 'varchar', length: 50, nullable: false })
   name: string;
 
+  @Column({ type: 'varchar', length: 50, nullable: false })
+  nickname: string;
+
   @Column({ type: 'varchar', length: 20, unique: true, nullable: false })
   dni: string;
 
@@ -29,6 +32,13 @@ export class User {
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   city: string;
+
+  @Column({
+    type: 'text',
+    default:
+      'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg',
+  })
+  imgUrlUser: string;
 
   @Column({ type: 'boolean', default: false })
   isAdmin?: boolean;

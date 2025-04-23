@@ -23,6 +23,17 @@ export class CreateUserDto {
 
   @ApiProperty({
     required: true,
+    description: 'Apodo del usuario',
+    example: 'Eddie',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(50)
+  nickname: string; // Nuevo campo agregado
+
+  @ApiProperty({
+    required: true,
     description: 'Correo electrónico del usuario',
     example: 'eduardoandresdiaz@gmail.com',
   })
@@ -120,6 +131,15 @@ export class CreateUserDto {
   })
   @IsEmpty()
   isAdmin?: boolean;
+
+  @ApiProperty({
+    required: false,
+    description: 'URL de la imagen del usuario',
+    example:
+      'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg',
+  })
+  @IsString()
+  imgUrlUser?: string; // Nuevo campo agregado
 
   @ApiProperty({
     required: false,
