@@ -5,9 +5,10 @@ import { FileUploadRepository } from './file-upload.repository';
 import { CloudinaryConfig } from '../config/cloudinary';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from '../products/products.entity';
+import { User } from '../users/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product])],
+  imports: [TypeOrmModule.forFeature([Product, User])],
   controllers: [FileUploadController],
   providers: [FileUploadService, FileUploadRepository, CloudinaryConfig],
   exports: [FileUploadService, FileUploadRepository],
