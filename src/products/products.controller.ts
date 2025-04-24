@@ -113,7 +113,7 @@ export class ProductsController {
     }
 
     const productUrl = `https://conlara.com.ar/productos/share/${id}`;
-    const realProductUrl = `https://ecommerce-9558.onrender.com/products/${id}`;
+    const realProductUrl = `https://conlara.com.ar/productos/${id}`;
 
     const html = `
     <!DOCTYPE html>
