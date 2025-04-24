@@ -18,12 +18,16 @@ export class FileUploadService {
 
   async uploadProductImage(file: Express.Multer.File, productId: string) {
     console.log('Archivo recibido:', file);
-    const productExist = await this.productRepository.findOneBy({ id: productId });
+    const productExist = await this.productRepository.findOneBy({
+      id: productId,
+    });
     if (!productExist) {
       return 'El producto no existe';
     }
     const uploadedImage = await this.fileUploadRepository.uploadImage(file);
-    await this.productRepository.update(productId, { imgUrl: uploadedImage.secure_url });
+    await this.productRepository.update(productId, {
+      imgUrl: uploadedImage.secure_url,
+    });
 
     return await this.productRepository.findOneBy({ id: productId });
   }
@@ -37,7 +41,9 @@ export class FileUploadService {
     }
 
     const uploadedImage = await this.fileUploadRepository.uploadImage(file);
-    await this.userRepository.update(userId, { imgUrlUser: uploadedImage.secure_url });
+    await this.userRepository.update(userId, {
+      imgUrlUser: uploadedImage.secure_url,
+    });
 
     return await this.userRepository.findOneBy({ id: userId });
   }
