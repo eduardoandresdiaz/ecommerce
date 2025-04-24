@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { FileUploadService } from './file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { User } from '../users/user.entity';
+//import { User } from '../users/user.entity';
 
 @Controller('file-upload')
 export class FileUploadController {

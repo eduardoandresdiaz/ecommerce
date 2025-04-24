@@ -27,7 +27,6 @@ export class AuthService {
     const token = this.jwtService.sign(userPayload);
     return { token, message: 'bienvenido' };
   }
-
   async signUp(user: CreateUserDto) {
     console.log('entro a signUp en service ');
     const foundUser = await this.userRepository.findByEmail(user.email);
@@ -41,7 +40,9 @@ export class AuthService {
     if (!hashedPassword) {
       throw new BadRequestException('error al hashear clave');
     }
-    await this.userRepository.createUser({
+
+    // Crear el usuario y obtener el resultado
+    const createdUser = await this.userRepository.createUser({
       ...user,
       password: hashedPassword,
       imgUrlUser:
@@ -49,9 +50,37 @@ export class AuthService {
         'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // Asegurar que tenga un valor
     });
 
+    // Extraer datos sin las contraseñas y agregar el ID
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, confirmPassword, ...userWithoutPass } = user;
 
-    return userWithoutPass;
+    return { ...userWithoutPass, id: createdUser.id };
   }
+
+  // async signUp(user: CreateUserDto) {
+  //   console.log('entro a signUp en service ');
+  //   const foundUser = await this.userRepository.findByEmail(user.email);
+  //   if (foundUser) {
+  //     throw new BadRequestException('el usuario ya registrado');
+  //   }
+  //   if (user.password !== user.confirmPassword) {
+  //     throw new BadRequestException('las Contraseñas o Email no coinciden');
+  //   }
+  //   const hashedPassword = await bcrypt.hash(user.password, 10);
+  //   if (!hashedPassword) {
+  //     throw new BadRequestException('error al hashear clave');
+  //   }
+  //   await this.userRepository.createUser({
+  //     ...user,
+  //     password: hashedPassword,
+  //     imgUrlUser:
+  //       user.imgUrlUser ||
+  //       'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // Asegurar que tenga un valor
+  //   });
+
+  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   const { password, confirmPassword, ...userWithoutPass } = user;
+
+  //   return userWithoutPass;
+  // }
 }
