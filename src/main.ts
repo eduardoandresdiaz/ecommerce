@@ -40,18 +40,18 @@ async function bootstrap() {
   console.log('Hora local según el backend:', new Date().toLocaleString());
 
   // Manejo de preflight requests CORS (Opciones)
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header(
-      'Access-Control-Allow-Methods',
-      'GET, POST, PUT, DELETE, OPTIONS',
-    );
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    if (req.method === 'OPTIONS') {
-      return res.sendStatus(200);
-    }
-    next();
-  });
+  // app.use((req, res, next) => {
+  //   res.header('Access-Control-Allow-Origin', '*');
+  //   res.header(
+  //     'Access-Control-Allow-Methods',
+  //     'GET, POST, PUT, DELETE, OPTIONS',
+  //   );
+  //   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  //   if (req.method === 'OPTIONS') {
+  //     return res.sendStatus(200);
+  //   }
+  //   next();
+  // });
 
   await app.listen(process.env.PORT ?? 3000);
   console.log(

@@ -3,7 +3,7 @@ node_modules
 dist
 .env
 extras-borrar/Machete.txt
-code_export
+code_export.js
 
 # compiled output
 dist
