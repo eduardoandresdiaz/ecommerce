@@ -29,7 +29,6 @@ async function bootstrap() {
     ], // Agrega todos los dominios permitidos
     methods: 'GET,POST,PUT,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization',
-    credentials: true,
   });
 
   // Middleware y Validación Global
