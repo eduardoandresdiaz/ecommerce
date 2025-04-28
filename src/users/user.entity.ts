@@ -43,6 +43,9 @@ export class User {
   @Column({ type: 'boolean', default: false })
   isAdmin?: boolean;
 
+  @Column({ nullable: true })
+  publicIdUser: string;
+
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
 }
