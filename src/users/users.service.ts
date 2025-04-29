@@ -9,6 +9,11 @@ export class UserService {
   getUsers(page: number, limit: number) {
     return this.userRepository.getUsers(page, limit);
   }
+  async getUserByNickname(
+    nickname: string,
+  ): Promise<Omit<User, 'password' | 'isAdmin'>> {
+    return this.userRepository.getUserByNickname(nickname);
+  }
 
   getUserById(id: string) {
     return this.userRepository.getUserById(id);

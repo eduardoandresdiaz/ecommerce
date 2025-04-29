@@ -28,6 +28,12 @@ export class UsersController {
   }
 
   @HttpCode(200)
+  @Get('nickname/:nickname')
+  getUserByNickname(@Param('nickname') nickname: string) {
+    return this.userService.getUserByNickname(nickname);
+  }
+
+  @HttpCode(200)
   @Get(':id')
   @UseGuards(AuthGuard)
   getUserById(@Param('id', ParseUUIDPipe) id: string) {
