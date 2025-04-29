@@ -21,9 +21,9 @@ describe('UsersController', () => {
       country: 'Colombia',
       address: 'Calle 123',
       city: 'Bogota',
-      imgUrlUser:
-        'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
+      imgUrlUser: 'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
       orders: [],
+      publicIdUser: ''
     },
     {
       id: '2',
@@ -37,9 +37,9 @@ describe('UsersController', () => {
       country: 'Colombia',
       address: 'Calle 123',
       city: 'Bogota',
-      imgUrlUser:
-        'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
+      imgUrlUser: 'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
       orders: [],
+      publicIdUser: ''
     },
   ];
 
