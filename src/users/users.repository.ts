@@ -75,6 +75,18 @@ export class UserRepository {
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+  async getUserByNickname(
+    nickname: string,
+  ): Promise<Omit<User, 'password' | 'isAdmin'>> {
+    const user = await this.usersRepository.findOne({ where: { nickname } });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado con ese nickname');
+    }
+
+    const { password, isAdmin, ...userWithoutSensitiveData } = user; // Excluye datos sensibles
+    return userWithoutSensitiveData;
+  }
 
   async save(user: User): Promise<User> {
     return this.usersRepository.save(user);
