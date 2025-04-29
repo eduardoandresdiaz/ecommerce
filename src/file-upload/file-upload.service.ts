@@ -40,13 +40,42 @@ export class FileUploadService {
       return 'El usuario no existe';
     }
 
+    // **Eliminar imagen anterior si existe**
+    if (userExist.publicIdUser) {
+      try {
+        await this.deleteImage(userExist.publicIdUser);
+      } catch (error) {
+        console.error('Error eliminando imagen anterior:', error);
+      }
+    }
+
+    // **Subir nueva imagen a Cloudinary**
     const uploadedImage = await this.fileUploadRepository.uploadImage(file);
+
+    // **Actualizar datos del usuario con la nueva imagen**
     await this.userRepository.update(userId, {
       imgUrlUser: uploadedImage.secure_url,
+      publicIdUser: uploadedImage.public_id,
     });
 
     return await this.userRepository.findOneBy({ id: userId });
   }
+
+  // async uploadProfileImage(file: Express.Multer.File, userId: string) {
+  //   console.log('Imagen de perfil recibida:', file);
+
+  //   const userExist = await this.userRepository.findOneBy({ id: userId });
+  //   if (!userExist) {
+  //     return 'El usuario no existe';
+  //   }
+
+  //   const uploadedImage = await this.fileUploadRepository.uploadImage(file);
+  //   await this.userRepository.update(userId, {
+  //     imgUrlUser: uploadedImage.secure_url,
+  //   });
+
+  //   return await this.userRepository.findOneBy({ id: userId });
+  // }
 
   async deleteImage(publicId: string): Promise<string> {
     try {
