@@ -56,6 +56,12 @@ export class UserService {
   deleteUser(id: string) {
     return this.userRepository.deleteUser(id);
   }
+  async getProductosByUsuario(email: string) {
+    const response = await fetch(
+      `https://ecommerce-9558.onrender.com/products/by-creator?creatorEmail=${email}`,
+    );
+    return response.json();
+  }
 }
 
 // import { Injectable } from '@nestjs/common';

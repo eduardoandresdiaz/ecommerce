@@ -84,6 +84,7 @@ export class UserRepository {
       throw new NotFoundException('Usuario no encontrado con ese nickname');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, isAdmin, ...userWithoutSensitiveData } = user; // Excluye datos sensibles
     return userWithoutSensitiveData;
   }
