@@ -54,19 +54,20 @@ export class UsersController {
         `https://ecommerce-9558.onrender.com/products/by-creator?creatorEmail=${usuario.email}`,
       );
       const productos = productosRes.ok ? await productosRes.json() : [];
-
+      const nicknameFormatted = nickname.replace(/_/g, ' ');
+      console.log(usuario.imgUrlUser);
       const html = `
   <!DOCTYPE html>
   <html lang="es">
   <head>
     <meta charset="UTF-8">
-    <title>Perfil de ${usuario.nickname}</title>
-    <meta name="description" content="Mira los productos publicados por ${usuario.nickname}" />
+    <title>${nicknameFormatted}</title>
+    <meta name="description" content="Mira los productos publicados por ${nicknameFormatted}" />
 
     <!-- Meta etiquetas Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Perfil de usuario: ${usuario.nickname}" />
-    <meta property="og:description" content="Mira los productos publicados por ${usuario.nickname}" />
+    <meta property="og:title" content="Perfil de usuario: ${nicknameFormatted}" />
+    <meta property="og:description" content="Mira los productos publicados por ${nicknameFormatted}" />
     <meta property="og:image" content="${usuario.imgUrlUser}" />
     <meta property="og:url" content="https://conlara.com.ar/users/share/${nickname}" />
     <meta property="fb:app_id" content="1010635721174127" />
@@ -84,12 +85,12 @@ export class UsersController {
     </style>
   </head>
   <body>
-    <h1>Perfil de ${usuario.nickname}</h1>
+    <h1>Perfil de ${nicknameFormatted}</h1>
     <div class="perfilPublico__imagen">
-      <img src="${usuario.imgUrlUser}" alt="Foto de ${usuario.nickname}" />
+      <img src="${usuario.imgUrlUser}" alt="Foto de ${nicknameFormatted}" />
     </div>
 
-    <h2>Productos de ${usuario.nickname}</h2>
+    <h2>Productos de ${nicknameFormatted}</h2>
     <div class="listadoProductos">
       ${productos
         .map(
