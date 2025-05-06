@@ -111,8 +111,8 @@ export class ProductsController {
     if (!product) {
       return res.status(HttpStatus.NOT_FOUND).send('Producto no encontrado');
     }
-
-    const productUrl = `https://conlara.com.ar/productos/share/${id}`;
+    const productUrl = `https://ecommerce-9558.onrender.com/products/share/${id}`;
+    //const productUrl = `https://conlara.com.ar/productos/share/${id}`;
     const realProductUrl = `https://conlara.com.ar/productos/${id}`;
 
     const html = `
