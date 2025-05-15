@@ -51,14 +51,16 @@ export class ProductRepository {
 
     return rankedProducts.map(({ product }) => product);
   }
-  async getProducts(): Promise<Product[]> {
+  async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {
     return await this.productRepository.find({
       relations: {
         category: true,
       },
       order: {
-        createdAt: 'DESC', // Ordena del más reciente al más antiguo
+        createdAt: 'DESC',
       },
+      skip: (page - 1) * limit, // Salta los registros de las páginas anteriores
+      take: limit, // Limita la cantidad de registros devueltos
     });
   }
 
