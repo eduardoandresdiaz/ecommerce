@@ -50,64 +50,64 @@ async compartirPerfil(
     }
     const usuario = await userRes.json();
 
-    // Obtener productos del usuario
-    const productosRes = await fetch(
-      `https://ecommerce-9558.onrender.com/products/by-creator?creatorEmail=${usuario.email}`,
-    );
-    let productos = productosRes.ok ? await productosRes.json() : [];
+      const productosRes = await fetch(
+        `https://ecommerce-9558.onrender.com/products/by-creator?creatorEmail=${usuario.email}`,
+      );
+      const productos = productosRes.ok ? await productosRes.json() : [];
+      const nicknameFormatted = nickname.replace(/_/g, ' ');
+      console.log(usuario.imgUrlUser);
+      const html = `
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <title>${nicknameFormatted}</title>
+    <meta name="description" content="Mira los productos publicados por ${nicknameFormatted}" />
 
-    // Ordenar los productos del más reciente al más antiguo
-    productos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    <!-- Meta etiquetas Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="${nicknameFormatted}" />
+    <meta property="og:description" content="Mira los productos publicados por ${nicknameFormatted}" />
+    <meta property="og:image" content="${usuario.imgUrlUser}" />
+    <meta property="og:url" content="https://conlara.com.ar/users/share/${nickname}" />
+    <meta property="fb:app_id" content="1010635721174127" />
 
-    // Formatear el nickname eliminando _
-    const nicknameFormatted = nickname.replace(/_/g, ' ');
-
-    // Generar HTML
-    const html = `
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8">
-        <title>${nicknameFormatted}</title>
-        <meta name="description" content="Mira los productos publicados por ${nicknameFormatted}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Perfil de usuario: ${nicknameFormatted}" />
-        <meta property="og:description" content="Mira los productos publicados por ${nicknameFormatted}" />
-        <meta property="og:image" content="${usuario.imgUrlUser}" />
-        <meta property="og:url" content="https://conlara.com.ar/users/share/${nickname}" />
-        <meta property="fb:app_id" content="1010635721174127" />
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; background-color: #ffae3b; padding: 20px; }
-          .perfilPublico__imagen img { max-width: 300px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-          .listadoProductos { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; }
-          .producto { padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fff84f; max-width: 300px; text-align: center; }
-          .producto img { max-width: 100%; border-radius: 5px; }
-          .producto h3 { font-size: 1.2rem; color: #333; }
-          .producto p { font-size: 1rem; color: #666; }
-          .botonInteresa { background-color: #007BFF; color: white; padding: 10px 15px; border-radius: 5px; font-size: 1rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 10px; }
-          .botonInteresa:hover { background-color: #0056b3; }
-        </style>
-      </head>
-      <body>
-        <h1>Perfil de ${nicknameFormatted}</h1>
-        <div class="perfilPublico__imagen">
-          <img src="${usuario.imgUrlUser}" alt="Foto de ${nicknameFormatted}" />
-        </div>
-        <h2>Productos de ${nicknameFormatted}</h2>
-<div class="listadoProductos">
-  ${productos.map(producto => `
-    <div class="producto" onclick="window.location.href='https://conlara.com.ar/productos/${producto.id}'" style="cursor: pointer;">
-      <img src="${producto.imgUrl}" alt="${producto.name}" style="max-width: 100%;" />
-      <h3>${producto.name}</h3>
-      <p>Precio: ${isNaN(producto.price) || producto.price === 1 ? 'Consultar' : `$${parseFloat(producto.price).toFixed(2)}`}</p>
-      <a href="https://conlara.com.ar/productos/${producto.id}" class="botonInteresa">Me Interesa</a>
+    <style>
+      body { font-family: Arial, sans-serif; text-align: center; background-color: #ffae3b; padding: 20px; }
+      .perfilPublico__imagen img { max-width: 300px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+      .listadoProductos { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; }
+      .producto { padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fff84f; max-width: 300px; text-align: center; }
+      .producto img { max-width: 100%; border-radius: 5px; }
+      .producto h3 { font-size: 1.2rem; color: #333; }
+      .producto p { font-size: 1rem; color: #666; }
+      .botonInteresa { background-color: #007BFF; color: white; padding: 10px 15px; border-radius: 5px; font-size: 1rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 10px; }
+      .botonInteresa:hover { background-color: #0056b3; }
+    </style>
+  </head>
+  <body>
+    <h1>Perfil de ${nicknameFormatted}</h1>
+    <div class="perfilPublico__imagen">
+      <img src="${usuario.imgUrlUser}" alt="Foto de ${nicknameFormatted}" />
     </div>
-  `).join('')}
-</div>
 
-      </body>
-      </html>
-    `;
+    <h2>Productos de ${nicknameFormatted}</h2>
+    <div class="listadoProductos">
+      ${productos
+        .map(
+          (producto) => `
+        <div class="producto">
+          <img src="${producto.imgUrl}" alt="${producto.name}" style="max-width: 100%;" />
+          <h3>${producto.name}</h3>
+          <p>Precio: ${isNaN(producto.price) || producto.price === 1 ? 'Consultar' : `$${parseFloat(producto.price).toFixed(2)}`}</p>
+          <a href="https://conlara.com.ar/productos/${producto.id}" class="botonInteresa">Me Interesa</a>
+        </div>
+      `,
+        )
+        .join('')}
+    </div>
+  </body>
+  </html>
+`;
 
     res.send(html);
   } catch (error) {

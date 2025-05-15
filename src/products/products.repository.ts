@@ -51,28 +51,49 @@ export class ProductRepository {
 
     return rankedProducts.map(({ product }) => product);
   }
-
-  async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {
-    const products = await this.productRepository.find({
+  async getProducts(): Promise<Product[]> {
+    return await this.productRepository.find({
       relations: {
         category: true,
       },
+      order: {
+        createdAt: 'DESC', // Ordena del más reciente al más antiguo
+      },
     });
-    let inStock = products.filter((product) => product.stock > 0);
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    inStock = inStock.slice(startIndex, endIndex);
-    return inStock;
   }
 
+  // async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {
+  //   const products = await this.productRepository.find({
+  //     relations: {
+  //       category: true,
+  //     },
+  //   });
+  //   let inStock = products.filter((product) => product.stock > 0);
+  //   const startIndex = (page - 1) * limit;
+  //   const endIndex = startIndex + limit;
+  //   inStock = inStock.slice(startIndex, endIndex);
+  //   return inStock;
+  // }
   async getProductsByCreatorEmail(creatorEmail: string): Promise<Product[]> {
     return await this.productRepository.find({
       where: { creatorEmail },
       relations: {
         category: true,
       },
+      order: {
+        createdAt: 'DESC', // Ordenar por fecha de creación, descendente
+      },
     });
   }
+
+  // async getProductsByCreatorEmail(creatorEmail: string): Promise<Product[]> {
+  //   return await this.productRepository.find({
+  //     where: { creatorEmail },
+  //     relations: {
+  //       category: true,
+  //     },
+  //   });
+  // }
 
   async getProductById(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({
