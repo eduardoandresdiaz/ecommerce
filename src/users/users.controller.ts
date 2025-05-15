@@ -85,7 +85,7 @@ async compartirPerfil(
     </style>
   </head>
   <body>
-    <h1>Perfil de ${nicknameFormatted}</h1>
+    <h1> ${nicknameFormatted}</h1>
     <div class="perfilPublico__imagen">
       <img src="${usuario.imgUrlUser}" alt="Foto de ${nicknameFormatted}" />
     </div>
