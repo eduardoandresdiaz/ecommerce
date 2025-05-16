@@ -98,7 +98,8 @@ export class UsersController {
         <div class="producto">
           <img src="${producto.imgUrl}" alt="${producto.name}" style="max-width: 100%;" />
           <h3>${producto.name}</h3>
-          <p>Precio: ${isNaN(producto.price) || producto.price === 1 ? 'Consultar' : `$${parseFloat(producto.price).toFixed(2)}`}</p>
+          <p>Precio: ${isNaN(Number(producto.price)) || Number(producto.price) === 1 ? 'Consultar' : `$${parseFloat(producto.price).toFixed(2)}`}</p>
+
           <a href="https://conlara.com.ar/productos/${producto.id}" class="botonInteresa">Me Interesa</a>
         </div>
       `,
