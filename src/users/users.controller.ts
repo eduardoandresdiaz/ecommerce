@@ -88,6 +88,19 @@ export class UsersController {
     gap: 15px;
     justify-content: space-between;
     width: 100vw;
+    .listadoProductos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Ajusta este valor para reducir la separación horizontal y vertical */
+    justify-content: center;
+    width: 100vw;
+}
+
+.producto {
+    flex: 1 1 calc(25% - 20px);
+    max-width: calc(25% - 20px);
+}
+
   }
 
   .producto {
