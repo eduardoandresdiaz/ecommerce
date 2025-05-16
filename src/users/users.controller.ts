@@ -105,6 +105,17 @@ export class UsersController {
         )
         .join('')}
     </div>
+    <script>
+  document.querySelectorAll(".producto").forEach(producto => {
+    producto.addEventListener("click", () => {
+      const boton = producto.querySelector(".botonInteresa");
+      if (boton) {
+        window.location.href = boton.href;
+      }
+    });
+  });
+</script>
+
   </body>
   </html>
 `;
