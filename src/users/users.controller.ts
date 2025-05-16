@@ -82,31 +82,7 @@ export class UsersController {
       .producto p { font-size: 1rem; color: #666; }
       .botonInteresa { background-color: #007BFF; color: white; padding: 10px 15px; border-radius: 5px; font-size: 1rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 10px; }
       .botonInteresa:hover { background-color: #0056b3; }
-        .listadoProductos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: space-between;
-    width: 100vw;
-    .listadoProductos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px; /* Ajusta este valor para reducir la separación horizontal y vertical */
-    justify-content: center;
-    width: 100vw;
-}
-
-.producto {
-    flex: 1 1 calc(25% - 20px);
-    max-width: calc(25% - 20px);
-}
-
-  }
-
-  .producto {
-    flex: 1 1 calc(25% - 20px);
-    max-width: calc(25% - 20px);
-  }
+      
     </style>
   </head>
   <body>
