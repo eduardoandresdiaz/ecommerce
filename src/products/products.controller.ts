@@ -128,7 +128,7 @@ export class ProductsController {
         <meta property="og:image" content="${product.imgUrl}" />
         <meta property="og:url" content="${productUrl}" />
         <meta property="og:site_name" content="Conlara Tienda" />
-        <meta property="fb:app_id" content="TU_FB_APP_ID" />
+        <meta property="fb:app_id" content="1010635721174127" />
         
         <meta http-equiv="refresh" content="3; url=${realProductUrl}" />
       </head>
