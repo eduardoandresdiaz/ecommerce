@@ -103,163 +103,49 @@ export class ProductsController {
     return await this.productsService.deleteProduct(id);
   }
   ///////////////////prueba
+
+  /////////////////////fin prueba
+
+  // Único método para compartir el producto
+  // Asegúrate de que solo haya un método shareProduct
   @Get('share/:id')
   async shareProduct(@Param('id') id: string, @Res() res: Response) {
     const product = await this.productsService.getProductById(id);
     if (!product) {
       return res.status(HttpStatus.NOT_FOUND).send('Producto no encontrado');
     }
-
-    const realProductUrl = `https://conlara.com.ar/productos/${product.id}`;
-    const productUrl = `https://conlara.com.ar/productos/share/${product.id}`;
-
-    const precioFormateado =
-      !product.price || Number(product.price) === 1
-        ? 'Consultar precio'
-        : `$${Number(product.price).toLocaleString('es-AR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`;
+    const productUrl = `https://ecommerce-9558.onrender.com/products/share/${id}`;
+    //const productUrl = `https://conlara.com.ar/productos/share/${id}`;
+    const realProductUrl = `https://conlara.com.ar/productos/${id}`;
 
     const html = `
     <!DOCTYPE html>
     <html lang="es">
       <head>
         <meta charset="utf-8" />
-        <title>${product.name} - Conlara.com.ar</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>${product.name} - Conlara Tienda</title>
         <meta name="description" content="${product.description}" />
         <meta property="og:type" content="product" />
         <meta property="og:title" content="${product.name}" />
         <meta property="og:description" content="${product.description}" />
         <meta property="og:image" content="${product.imgUrl}" />
         <meta property="og:url" content="${productUrl}" />
-        <meta property="og:site_name" content="Conlara.com.ar" />
+        <meta property="og:site_name" content="Conlara Tienda" />
         <meta property="fb:app_id" content="1010635721174127" />
-        <meta http-equiv="refresh" content="5; url=${realProductUrl}" />
-  
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            background-color: #fff9c4;
-            margin: 0;
-            padding: 0;
-          }
-          .encabezado {
-            text-align: center;
-            padding: 20px;
-          }
-          .encabezado h1 {
-            font-size: 2.5rem;
-            color: #222;
-            margin: 0;
-          }
-          .encabezado h2 {
-            font-size: 1.5rem;
-            color: #444;
-            margin: 0;
-          }
-          .contenedor {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: #fce40c;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-          }
-          .titulo {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            color: #333;
-          }
-          .descripcion, .precio {
-            font-size: 1.2rem;
-            color: #555;
-            margin: 10px 0;
-          }
-          .imagen {
-            max-width: 100%;
-            border-radius: 8px;
-            margin-top: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-          }
-          .redireccion {
-            margin-top: 30px;
-            font-size: 1rem;
-            color: #333;
-          }
-        </style>
+
+        <meta http-equiv="refresh" content="3; url=${realProductUrl}" />
       </head>
       <body>
-        <div class="encabezado">
-          <h1>CONLARA.COM.AR</h1>
-          <h2>Compra y Vende en el Valle del Conlara</h2>
-        </div>
-  
-        <div class="contenedor">
-          <h1 class="titulo">${product.name}</h1>
-          <p class="descripcion"><strong>Descripción:</strong> ${product.description}</p>
-          <p class="precio"><strong>Precio:</strong> ${precioFormateado}</p>
-          <img class="imagen" src="${product.imgUrl}" alt="${product.name}" />
-          
-          <p class="redireccion">Serás redirigido en 5 segundos... Si no, <a href="${realProductUrl}">hacé clic acá</a>.</p>
-        </div>
-  
         <script>
-          setTimeout(() => {
-            window.location.href = "${realProductUrl}";
-          }, 5000);
+          window.location.href = "${realProductUrl}";
         </script>
       </body>
     </html>
-    `;
+  `;
 
     res.status(HttpStatus.OK).send(html);
   }
 }
-/////////////////////fin prueba
-
-// Único método para compartir el producto
-// Asegúrate de que solo haya un método shareProduct
-//   @Get('share/:id')
-//   async shareProduct(@Param('id') id: string, @Res() res: Response) {
-//     const product = await this.productsService.getProductById(id);
-//     if (!product) {
-//       return res.status(HttpStatus.NOT_FOUND).send('Producto no encontrado');
-//     }
-//     const productUrl = `https://ecommerce-9558.onrender.com/products/share/${id}`;
-//     //const productUrl = `https://conlara.com.ar/productos/share/${id}`;
-//     const realProductUrl = `https://conlara.com.ar/productos/${id}`;
-
-//     const html = `
-//     <!DOCTYPE html>
-//     <html lang="es">
-//       <head>
-//         <meta charset="utf-8" />
-//         <title>${product.name} - Conlara Tienda</title>
-//         <meta name="description" content="${product.description}" />
-//         <meta property="og:type" content="product" />
-//         <meta property="og:title" content="${product.name}" />
-//         <meta property="og:description" content="${product.description}" />
-//         <meta property="og:image" content="${product.imgUrl}" />
-//         <meta property="og:url" content="${productUrl}" />
-//         <meta property="og:site_name" content="Conlara Tienda" />
-//         <meta property="fb:app_id" content="1010635721174127" />
-
-//         <meta http-equiv="refresh" content="3; url=${realProductUrl}" />
-//       </head>
-//       <body>
-//         <script>
-//           window.location.href = "${realProductUrl}";
-//         </script>
-//       </body>
-//     </html>
-//   `;
-
-//     res.status(HttpStatus.OK).send(html);
-//   }
-// }
 
 // import {
 //   Body,
