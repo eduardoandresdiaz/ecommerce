@@ -145,6 +145,62 @@ export class ProductsController {
 
     res.status(HttpStatus.OK).send(html);
   }
+  ////////////////////////////////////////////////////////////////////////////////////////
+  @Get('share-facebook/:id')
+  async compartirProductoFacebook(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const producto = await this.productsService.getProductById(id);
+
+      if (!producto) {
+        return res.status(404).send('<h1>Producto no encontrado</h1>');
+      }
+
+      const nombre = producto.name?.replace(/"/g, '&quot;') || 'Producto';
+      const descripcion =
+        producto.description?.replace(/"/g, '&quot;') || '¡Mirá este producto!';
+      const imagen =
+        producto.imgUrl ||
+        'https://conlara.com.ar/assets/img/default-product.jpg';
+      const destinoFinal = `https://conlara.com.ar/productos/${producto.id}`;
+
+      const html = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <title>${nombre} - Conlara Tienda</title>
+        <meta name="description" content="${descripcion}" />
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content="${nombre}" />
+        <meta property="og:description" content="${descripcion}" />
+        <meta property="og:image" content="${imagen}" />
+        <meta property="og:url" content="https://conlara.com.ar/products/share-facebook/${producto.id}" />
+        <meta property="og:site_name" content="Conlara Tienda" />
+        <meta property="fb:app_id" content="1010635721174127" />
+      </head>
+      <body>
+        <h1>Redirigiendo al producto...</h1>
+        <p>Si no redirige automáticamente, <a href="${destinoFinal}">haz clic aquí</a>.</p>
+        <script>
+          setTimeout(() => {
+            window.location.href = "${destinoFinal}";
+          }, 1500);
+        </script>
+      </body>
+      </html>
+      `;
+
+      res.send(html);
+    } catch (error) {
+      console.error('Error en compartirProductoFacebook:', error);
+      res.status(500).send('<h1>Error al cargar el producto</h1>');
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
 }
 
 // import {
