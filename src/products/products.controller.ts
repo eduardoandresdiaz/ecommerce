@@ -81,7 +81,7 @@ export class ProductsController {
 
   @HttpCode(200)
   @Put(':id')
-  @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async updateProduct(
     @Param('id', ParseUUIDPipe) id: string,
