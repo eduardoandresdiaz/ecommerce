@@ -138,22 +138,68 @@ export class ProductRepository {
     });
   }
 
+  // async createProduct(productData: Partial<Product>): Promise<string> {
+  //   if (!productData.category || !productData.category.name) {
+  //     throw new Error('La categoría es obligatoria y debe incluir un nombre.');
+  //   }
+
+  //   try {
+  //     let category = await this.categoriesRepository.findOne({
+  //       where: { name: productData.category.name },
+  //     });
+
+  //     if (!category) {
+  //       category = new Category();
+  //       category.name = productData.category.name;
+  //       category = await this.categoriesRepository.save(category);
+  //     }
+
+  //     const product = new Product();
+  //     product.name = productData.name;
+  //     product.description = productData.description;
+  //     product.price = productData.price;
+  //     product.stock = productData.stock;
+  //     product.imgUrl =
+  //       productData.imgUrl ||
+  //       'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742769896/cyi4pszz0ighbcdgpujw.jpg';
+  //     product.creatorEmail = productData.creatorEmail;
+  //     product.telefono = productData.telefono || null;
+
+  //     product.createdAt = new Date();
+  //     const expirationDate = new Date();
+  //     expirationDate.setDate(product.createdAt.getDate() + 15);
+  //     product.expiresAt = expirationDate;
+
+  //     product.category = category;
+
+  //     await this.productRepository.save(product);
+  //     return `Producto creado exitosamente con ID: ${product.id}`;
+  //   } catch (error: unknown) {
+  //     if (error instanceof Error) {
+  //       throw new Error(`Error creando producto: ${error.message}`);
+  //     } else {
+  //       throw new Error('Error desconocido al crear producto');
+  //     }
+  //   }
+  // }
   async createProduct(productData: Partial<Product>): Promise<string> {
     if (!productData.category || !productData.category.name) {
       throw new Error('La categoría es obligatoria y debe incluir un nombre.');
     }
-
+  
     try {
+      // Buscar o crear la categoría
       let category = await this.categoriesRepository.findOne({
         where: { name: productData.category.name },
       });
-
+  
       if (!category) {
         category = new Category();
         category.name = productData.category.name;
         category = await this.categoriesRepository.save(category);
       }
-
+  
+      // Crear el producto
       const product = new Product();
       product.name = productData.name;
       product.description = productData.description;
@@ -164,14 +210,19 @@ export class ProductRepository {
         'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742769896/cyi4pszz0ighbcdgpujw.jpg';
       product.creatorEmail = productData.creatorEmail;
       product.telefono = productData.telefono || null;
-
+  
+      // Fecha de creación
       product.createdAt = new Date();
-      const expirationDate = new Date();
-      expirationDate.setDate(product.createdAt.getDate() + 15);
-      product.expiresAt = expirationDate;
-
+  
+      // ✅ Usar la fecha enviada o calcular una por defecto (+15 días)
+      product.expiresAt = productData.expiresAt
+        ? new Date(productData.expiresAt)
+        : new Date(product.createdAt.getTime() + 15 * 24 * 60 * 60 * 1000);
+  
+      // Asignar categoría
       product.category = category;
-
+  
+      // Guardar en la base
       await this.productRepository.save(product);
       return `Producto creado exitosamente con ID: ${product.id}`;
     } catch (error: unknown) {
@@ -182,6 +233,7 @@ export class ProductRepository {
       }
     }
   }
+  
 
   async deleteProduct(id: string): Promise<Partial<Product>> {
     const productToDelete = await this.productRepository.findOneBy({ id });
