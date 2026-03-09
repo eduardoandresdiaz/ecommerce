@@ -15,42 +15,52 @@ export class ProductRepository {
     const keywords = input
       .toLowerCase()
       .split(/\s+/)
-      .filter((w) => w.length > 1); // Ignora palabras muy cortas como "a", "y", etc.
-
+      .filter((w) => w.length > 1); // Ignora palabras muy cortas
+  
     if (keywords.length === 0) return [];
-
+  
+    // 👉 Genera variantes singular/plural automáticamente
+    const expandedKeywords = keywords.flatMap((kw) => {
+      if (kw.endsWith('s')) {
+        return [kw, kw.slice(0, -1)]; // ej: lamparas → lamparas, lampara
+      } else {
+        return [kw, kw + 's']; // ej: lampara → lampara, lamparas
+      }
+    });
+  
     const query = this.productRepository.createQueryBuilder('product');
-
+  
     const whereExpressions: string[] = [];
     const parameters: Record<string, string> = {};
-
-    keywords.forEach((word, index) => {
+  
+    expandedKeywords.forEach((word, index) => {
       const param = `%${word}%`;
       parameters[`kw${index}`] = param;
-
+  
       whereExpressions.push(`
         LOWER(product.name) LIKE :kw${index}
         OR LOWER(product.description) LIKE :kw${index}
       `);
     });
-
+  
     query.where(whereExpressions.join(' OR '), parameters);
-
+  
     const products = await query.getMany();
-
+  
     const rankedProducts = products
       .map((product) => {
         const text = (product.name + ' ' + product.description).toLowerCase();
-
-        const matchCount = keywords.filter((kw) => text.includes(kw)).length;
-
+  
+        const matchCount = expandedKeywords.filter((kw) => text.includes(kw)).length;
+  
         return { product, matchCount };
       })
-      .filter((p) => p.matchCount > 0) // ✅ Excluye los que no coinciden con ninguna palabra
+      .filter((p) => p.matchCount > 0) // Excluye los que no coinciden
       .sort((a, b) => b.matchCount - a.matchCount); // Ordena por relevancia
-
+  
     return rankedProducts.map(({ product }) => product);
   }
+  
   async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {
     return await this.productRepository.find({
       relations: {
