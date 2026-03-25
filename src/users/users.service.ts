@@ -53,28 +53,31 @@ export class UserService {
   //   const { password, ...userWithoutPassword } = updatedUser;
   //   return userWithoutPassword;
   // }
-  async updateUser(
-    id: string,
-    updateUserDto: Partial<User>,
-  ): Promise<Omit<User, 'password'>> {
-    const user = await this.userRepository.getUserById(id);
+  
 
-    for (const key in updateUserDto) {
-      if (Object.prototype.hasOwnProperty.call(updateUserDto, key)) {
-        if (key === 'password' && updateUserDto.password) {
-          // 🔒 Encriptar la nueva contraseña
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(updateUserDto.password, salt);
-        } else {
-          user[key] = updateUserDto[key];
-        }
+async updateUser(
+  id: string,
+  updateUserDto: Partial<User>,
+): Promise<Omit<User, 'password'>> {
+  const user = await this.userRepository.getUserById(id);
+
+  for (const key in updateUserDto) {
+    if (Object.prototype.hasOwnProperty.call(updateUserDto, key)) {
+      if (key === 'password' && updateUserDto.password) {
+        // 🔒 Encriptar la nueva contraseña
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(updateUserDto.password, salt);
+      } else {
+        user[key] = updateUserDto[key];
       }
     }
-
-    const updatedUser = await this.userRepository.save(user);
-    const { password, ...userWithoutPassword } = updatedUser;
-    return userWithoutPassword;
   }
+
+  const updatedUser = await this.userRepository.save(user);
+  const { password, ...userWithoutPassword } = updatedUser;
+  return userWithoutPassword;
+}
+
 
   deleteUser(id: string) {
     return this.userRepository.deleteUser(id);
