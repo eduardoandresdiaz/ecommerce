@@ -147,4 +147,13 @@ export class CreateUserDto {
     example: [],
   })
   orders: any[];
+
+  @ApiProperty({
+    required: true,
+    description: 'Cantidad de publicaciones compartidas por el usuario',
+    example: 1,
+  })
+  @IsNotEmpty()
+  sharedCount: number;
+  
 }
