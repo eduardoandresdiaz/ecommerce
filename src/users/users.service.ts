@@ -30,11 +30,22 @@ export class UserService {
     return user;
   }
 
-  createUser(
+  // createUser(
+  //   user: Omit<User, 'id'>,
+  // ): Promise<Omit<User, 'password' | 'isAdmin'>> {
+  //   return this.userRepository.createUser(user);
+  // }
+  async createUser(
     user: Omit<User, 'id'>,
   ): Promise<Omit<User, 'password' | 'isAdmin'>> {
-    return this.userRepository.createUser(user);
+    try {
+      return await this.userRepository.createUser(user);
+    } catch (error) {
+      console.error('Error al crear usuario:', error);
+      throw error; // opcional: relanzas el error para que se maneje en otro nivel
+    }
   }
+  
 
   // async updateUser(
   //   id: string,
