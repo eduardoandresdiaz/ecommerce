@@ -25,6 +25,7 @@ describe('UsersController', () => {
         'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
       orders: [],
       publicIdUser: '',
+      sharedcount: 1,
     },
     {
       id: '2',
@@ -42,6 +43,7 @@ describe('UsersController', () => {
         'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
       orders: [],
       publicIdUser: '',
+      sharedcount: 1,
     },
   ];
 
