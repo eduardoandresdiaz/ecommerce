@@ -154,6 +154,6 @@ export class CreateUserDto {
     example: 1,
   })
   @IsNotEmpty()
-  sharedCount: number;
+  sharedcount: number;
   
 }
