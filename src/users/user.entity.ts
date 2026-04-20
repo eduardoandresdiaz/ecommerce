@@ -48,4 +48,8 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+  @Column({ type: 'int', default: 1 })
+  sharedcount: number;
+  
+
 }
