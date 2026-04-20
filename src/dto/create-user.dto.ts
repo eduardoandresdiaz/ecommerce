@@ -153,7 +153,6 @@ export class CreateUserDto {
     description: 'Cantidad de publicaciones compartidas por el usuario',
     example: 1,
   })
-  @IsNotEmpty()
   sharedcount: number;
   
 }
