@@ -26,8 +26,8 @@ async function bootstrap() {
       'http://localhost:5173',
       'https://conlara.onrender.com',
       'https://conlara.com.ar',
-    ], // Agrega todos los dominios permitidos
-    methods: 'GET,POST,PUT,DELETE,OPTIONS',
+    ],
+    methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS', // 👈 ahora incluye PATCH
     allowedHeaders: 'Content-Type, Authorization',
   });
 
@@ -39,12 +39,12 @@ async function bootstrap() {
   console.log('Zona horaria configurada:', process.env.TZ || 'No configurada');
   console.log('Hora local según el backend:', new Date().toLocaleString());
 
-  //Manejo de preflight requests CORS (Opciones)
+  // Manejo de preflight requests CORS (Opciones)
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header(
       'Access-Control-Allow-Methods',
-      'GET, POST, PUT, DELETE, OPTIONS',
+      'GET, POST, PUT, DELETE, PATCH, OPTIONS', // 👈 también incluye PATCH
     );
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     if (req.method === 'OPTIONS') {
