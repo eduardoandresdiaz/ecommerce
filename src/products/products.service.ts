@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { ProductRepository } from './products.repository';
 import { Product } from './products.entity';
@@ -38,5 +39,13 @@ export class ProductsService {
 
   async addProducts(): Promise<string> {
     return await this.productRepository.addProducts();
+  }
+  async updateStock(id: string, stock: number): Promise<Product> {
+    const product = await this.productRepository.getProductById(id);
+    if (!product) {
+      throw new NotFoundException(`Producto con id ${id} no encontrado`);
+    }
+    product.stock = stock;
+    return await this.productRepository.updateProduct(id, product);
   }
 }

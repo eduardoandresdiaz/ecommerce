@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Patch,
   Param,
   ParseUUIDPipe,
   Post,
@@ -31,6 +32,19 @@ export class ProductsController {
   async findProductsByKeywords(@Query('q') q: string): Promise<Product[]> {
     return await this.productsService.findProductsByKeywords(q);
   }
+    // ⭐ Nuevo endpoint PATCH para actualizar stock
+    @HttpCode(200)
+    @Patch(':id')
+    @UseGuards(AuthGuard)
+    async updateStock(
+      @Param('id', ParseUUIDPipe) id: string,
+      @Body() body: { stock: number },
+    ) {
+      if (typeof body.stock !== 'number' || body.stock < 0) {
+        throw new HttpException('Stock inválido', HttpStatus.BAD_REQUEST);
+      }
+      return await this.productsService.updateStock(id, body.stock);
+    }
 
   @HttpCode(200)
   @Get()
