@@ -1,3 +1,4 @@
+import { CreateProductDto } from '../dto/create-product.dto';
 import {
   Body,
   Controller,
@@ -84,14 +85,24 @@ export class ProductsController {
   }
 
   @HttpCode(200)
-  @Post()
-  async createProduct(@Body() newProduct: Product): Promise<string> {
-    if (validateProduct(newProduct)) {
-      newProduct.telefono = newProduct.telefono || null;
-      return await this.productsService.createProduct(newProduct);
-    }
-    throw new HttpException('Producto inválido', HttpStatus.BAD_REQUEST);
+
+@Post()
+async createProduct(@Body() newProduct: CreateProductDto): Promise<Product> {
+  if (validateProduct(newProduct)) {
+    newProduct.telefono = newProduct.telefono || null;
+    return await this.productsService.createProduct(newProduct);
   }
+  throw new HttpException('Producto inválido', HttpStatus.BAD_REQUEST);
+}
+
+  // @Post()
+  // async createProduct(@Body() newProduct: Product): Promise<string> {
+  //   if (validateProduct(newProduct)) {
+  //     newProduct.telefono = newProduct.telefono || null;
+  //     return await this.productsService.createProduct(newProduct);
+  //   }
+  //   throw new HttpException('Producto inválido', HttpStatus.BAD_REQUEST);
+  // }
 
   @HttpCode(200)
   @Put(':id')

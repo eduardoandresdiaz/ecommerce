@@ -75,6 +75,17 @@ export class Product {
     nullable: true,
   })
   expiresAt: Date;
+  @Column({ default: true })
+  mostrarPrecio: boolean;
+
+  @Column({ default: false })
+  resaltarOferta: boolean;
+
+  @Column({ default: false })
+  noPublicable: boolean;
+
+  @Column({ length: 100, nullable: true })
+  proveedor: string;
 
   @ManyToMany(() => OrderDetail, (orderDetail) => orderDetail.products)
   orderDetail: OrderDetail[];
