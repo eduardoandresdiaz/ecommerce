@@ -76,13 +76,13 @@ export class Product {
   })
   expiresAt: Date;
   @Column({ default: true })
-  mostrarPrecio: boolean;
+  mostrarprecio: boolean;
 
   @Column({ default: false })
-  resaltarOferta: boolean;
+  resaltaroferta: boolean;
 
   @Column({ default: false })
-  noPublicable: boolean;
+  nopublicable: boolean;
 
   @Column({ length: 100, nullable: true })
   proveedor: string;
