@@ -21,6 +21,7 @@ export class ProductsService {
     return await this.productRepository.find({
       skip: (page - 1) * limit,
       take: limit,
+      order: { createdAt:  'ASC' },
     });
   }
 
