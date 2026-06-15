@@ -21,9 +21,10 @@ export class ProductsService {
     return await this.productRepository.find({
       skip: (page - 1) * limit,
       take: limit,
-      order: { createdAt:  'ASC' },
+      order: { createdAt: 'DESC' },   // ✅ último publicado primero
     });
   }
+  
 
   async getProductsByCreatorEmail(creatorEmail: string): Promise<Product[]> {
     return await this.productRepository.find({ where: { creatorEmail } });
