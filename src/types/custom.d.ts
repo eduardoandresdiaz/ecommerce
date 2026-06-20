@@ -21,9 +21,9 @@ declare global {
     expiresAt?: string;
 
     // Nuevos campos
-    mostrarPrecio: boolean;
-    resaltarOferta: boolean;
-    noPublicable: boolean;
+    mostrarprecio: boolean;
+    resaltaroferta: boolean;
+    nopublicable: boolean;
     proveedor?: string;
   }
 }
