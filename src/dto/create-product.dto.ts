@@ -45,17 +45,17 @@ export class CreateProductDto {
   @ApiProperty({ description: 'Mostrar precio en la UI', example: true })
   @IsOptional()
   @IsBoolean()
-  mostrarPrecio?: boolean;
+  mostrarprecio?: boolean;
 
   @ApiProperty({ description: 'Resaltar como oferta', example: false })
   @IsOptional()
   @IsBoolean()
-  resaltarOferta?: boolean;
+  resaltaroferta?: boolean;
 
   @ApiProperty({ description: 'Indica si no es publicable', example: false })
   @IsOptional()
   @IsBoolean()
-  noPublicable?: boolean;
+  nopublicable?: boolean;
 
   @ApiProperty({ description: 'Proveedor del producto', example: 'Proveedor X' })
   @IsOptional()
