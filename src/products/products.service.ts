@@ -37,9 +37,10 @@ export class ProductsService {
   async createProduct(dto: CreateProductDto): Promise<Product> {
     const product = this.productRepository.create({
       ...dto,
-      mostrarprecio: dto.mostrarPrecio ?? true,
-      resaltaroferta: dto.resaltarOferta ?? false,
-      nopublicable: dto.noPublicable ?? false,
+      mostrarprecio: dto.mostrarprecio ?? true,
+      resaltaroferta: dto.resaltaroferta ?? false,
+      nopublicable: dto.nopublicable ?? false,
+
       proveedor: dto.proveedor ?? null,
       createdAt: new Date(),
       expiresAt: dto.expiresAt ?? null,
