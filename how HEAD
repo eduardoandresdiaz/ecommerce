@@ -1,0 +1,115 @@
+[33m354c82a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m cambio dto2
+[33mea17298[m prueba correccion 500 cambio customdto
+[33m81c491b[m prueba correccion 500 cambio dto
+[33m48d965f[m prueba correccion 500
+[33ma4063d7[m agregado5
+[33mfae5b4c[m agregado4
+[33m420dd3c[m agregado3
+[33m0f7eeb7[m agregado2
+[33m49a9f56[m agregado
+[33m81d3bc6[m cach
+[33me37a4ab[m cach
+[33md0f0be5[m correccion obtener count
+[33ma34a395[m modificado para limitar publicaciones
+[33m40cd2da[m vamosss
+[33me825a44[m dddssds
+[33m6306ef8[m dto
+[33m5682165[m agregado generar log en createuser modificando sharedcount sancando no vacio
+[33mee7f6d7[m agregado generar log en createuser modificando sharedcount
+[33m72946af[m agregado generar log en createuser
+[33m17463cb[m cambio en updateUser2
+[33maafc22b[m cambio en updateUser
+[33m6448604[m correccion busquedq
+[33me86b270[m agregado para recibir fecha de expiracion
+[33mce590e9[m cambio usuarios y admin  puedan modificar productos
+[33m18dca58[m cambio usuarios puedan modificar productos
+[33m3fd91de[m share-facebook
+[33maf5094b[m vuelta atras
+[33mde8af31[m agregado id facebook procucto modificado que envie html
+[33m3522d99[m agregado id facebook procucto modificado que envie html
+[33m8832ae2[m agregado id facebook procucto
+[33m85bb427[m 1 a estylo grilla3
+[33m3c66287[m 1 a estylo grilla2
+[33m358d665[m 1 a estylo grilla
+[33mc131184[m 1 a consultar
+[33m416580d[m click todo el preducto
+[33m08f2bb8[m muestra en forma desendente
+[33mcdcab88[m muestra en forma desendente
+[33m1aa211d[m muestra en forma desendente
+[33m64a51a8[m muestra en forma desendente
+[33m50a7945[m muestra en forma desendente
+[33m19c0ee1[m cambios en compartir usuario2
+[33m6219784[m cambios en compartir usuario
+[33mdef40e7[m cambio url productos
+[33mf968ebe[m agregado sacar -
+[33m77873d8[m okç
+[33mc4995da[m agrego busca por nik2
+[33mabca663[m agrego busca por nik
+[33maf9715b[m prueba
+[33mab0b1b0[m otro intento 2
+[33m3bd1f80[m otro intento
+[33m16ff09a[m intento desde negocio
+[33mfcf94c2[m delete image
+[33m57ffdf7[m cambio borrar imagen a perfil
+[33m37c3377[m problemas con cors3
+[33me2b708e[m problemas con cors2
+[33m433539c[m problemas con cors
+[33mbd38ac0[m ahora el alta devuelve id
+[33ma90c78a[m mmmm
+[33m5df296c[m mmm
+[33mf34d2bf[m modificado upload
+[33m2129985[m agregado nikname e imgurluser 3
+[33m69dcab8[m agregado nikname e imgurluser 2
+[33m98279e4[m agregado nikname e imgurluser
+[33m92eae9b[m saque @
+[33mb3f1dfd[m modificado proxy
+[33md53622d[m cambio get ultimo y a dormir 2
+[33m1485cf7[m cambio get ultimo y a dormir
+[33m743502d[m modificado manin.tsy sharecontrol 2
+[33m539b2d3[m modificado manin.tsy sharecontrol
+[33m3c7610c[m modificado manin.ts
+[33m5d323b8[m agregadoa proxy 2
+[33m5186188[m agregadoa proxy
+[33mcb899bc[m agragado undici
+[33mcd10a3d[m agragado proxy
+[33me15ec1d[m nueva modificacion share
+[33m7082343[m agregado end point shareproduct
+[33mef0b63d[m agregado buscador
+[33mca3b130[m agregado telefono a products
+[33m32bb8e8[m creacion end point buscar por email
+[33mf92a020[m correccion updateproduct 2
+[33m4bdb5b4[m correccion updateproduct
+[33m5d3261b[m cambios realizados
+[33m2f4b0be[m hay dios
+[33m8fa2b60[m dni 2
+[33mf3afc43[m dni
+[33m632c191[m dni
+[33mb6b6a14[m x
+[33m61c3d00[m xxxxxxxx
+[33m1ca70a3[m saco marca de agua2
+[33m43d0ca8[m saco marca de agua
+[33mcb6d701[m correccion texto foto
+[33m10f42fe[m correcion categories
+[33m10dee24[m cors conlara.com.ar
+[33mabb5a95[m correccion cargar filas
+[33m4d06b69[m correccion horaria createproduct 2
+[33ma98fdc2[m correccion horaria createproduct 2
+[33m216b025[m correccion horaria createproduct
+[33m98b98d4[m agregado en point busqueda por email
+[33mc6609d9[m se agrega a producto email del creador y fechas de creacion y expiracion
+[33m54c9d96[m se agrega a producto email del creador y fechas de creacion y expiracion
+[33medc179e[m cambio de imagen defaul
+[33m1eb86fd[m post crear producto trae id
+[33mf5181a1[m cambio de texto marca de agua
+[33m6d7ec6c[m agrego a cors conlara.onrender.com
+[33m0f6954e[m cors instalado
+[33mbc1049c[m nodificado rutas relativas
+[33meed3b2a[m cambio file-upload-service.ts
+[33m2b7604c[m modificado ruta
+[33mdb76e22[m Merge branch 'main' of https://github.com/eduardoandresdiaz/ecommerce
+[33m2d94d8c[m cambio usuario postgres
+[33md5760aa[m Create main2.yml
+[33mdf439d5[m Update main.yml
+[33ma8b2aa6[m Update main.yml
+[33ma78e50e[m Create main.yml
+[33m8249865[m primer commit

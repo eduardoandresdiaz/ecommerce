@@ -1,75 +1,51 @@
-import { NotFoundException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ProductRepository } from './products.repository';
 import { Product } from './products.entity';
-import { CreateProductDto } from '../dto/create-product.dto';
 
 @Injectable()
 export class ProductsService {
-  constructor(
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
-  ) {}
-
+  constructor(private readonly productRepository: ProductRepository) {}
   async findProductsByKeywords(keywords: string): Promise<Product[]> {
-    return await this.productRepository.find({
-      where: { name: keywords }, // ajustá según tu lógica de búsqueda
-    });
+    return await this.productRepository.findProductsByKeywords(keywords);
   }
 
   async getProducts(page: number, limit: number): Promise<Product[]> {
-    return await this.productRepository.find({
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { createdAt: 'DESC' },   // ✅ último publicado primero
-    });
+    return this.productRepository.getProducts(page, limit);
   }
-  
 
   async getProductsByCreatorEmail(creatorEmail: string): Promise<Product[]> {
-    return await this.productRepository.find({ where: { creatorEmail } });
+    return await this.productRepository.getProductsByCreatorEmail(creatorEmail);
   }
 
   async getProductById(id: string): Promise<Product> {
-    return await this.productRepository.findOne({ where: { id } });
+    return await this.productRepository.getProductById(id);
   }
 
-  async createProduct(dto: CreateProductDto): Promise<Product> {
-    const product = this.productRepository.create({
-      ...dto,
-      mostrarprecio: dto.mostrarprecio ?? true,
-      resaltaroferta: dto.resaltaroferta ?? false,
-      nopublicable: dto.nopublicable ?? false,
-
-      proveedor: dto.proveedor ?? null,
-      createdAt: new Date(),
-      expiresAt: dto.expiresAt ?? null,
-    });
-    return await this.productRepository.save(product);
+  async createProduct(newCreateProduct: Product): Promise<string> {
+    return await this.productRepository.createProduct(newCreateProduct);
   }
 
-  async updateProduct(id: string, updateData: Partial<Product>): Promise<Product> {
-    await this.productRepository.update(id, updateData);
-    return await this.getProductById(id);
+  async updateProduct(
+    id: string,
+    updateData: Partial<Product>,
+  ): Promise<Product> {
+    return await this.productRepository.updateProduct(id, updateData);
   }
 
   async deleteProduct(id: string): Promise<Partial<Product>> {
-    const product = await this.getProductById(id);
-    await this.productRepository.delete(id);
-    return { id: product.id, name: product.name };
+    return await this.productRepository.deleteProduct(id);
   }
 
   async addProducts(): Promise<string> {
-    // tu lógica de seeding
-    return 'Productos agregados';
+    return await this.productRepository.addProducts();
   }
-
   async updateStock(id: string, stock: number): Promise<Product> {
-    const product = await this.getProductById(id);
+    const product = await this.productRepository.getProductById(id);
     if (!product) {
       throw new NotFoundException(`Producto con id ${id} no encontrado`);
     }
     product.stock = stock;
-    return await this.productRepository.save(product);
+    return await this.productRepository.updateProduct(id, product);
   }
 }
