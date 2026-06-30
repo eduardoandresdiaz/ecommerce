@@ -180,9 +180,13 @@ export class ProductRepository {
         : new Date(product.createdAt.getTime() + 15 * 24 * 60 * 60 * 1000);
   
         product.mostrarprecio = productData.mostrarprecio ?? true;
-product.resaltaroferta = productData.resaltaroferta ?? false;
-product.nopublicable = productData.nopublicable ?? false;
-product.proveedor = productData.proveedor ?? null;
+        product.resaltaroferta = productData.resaltaroferta ?? false;
+        product.nopublicable = productData.nopublicable ?? false;
+        product.proveedor = productData.proveedor ?? null;
+
+        // 🔹 Nuevos campos
+        product.stockminimo = productData.stockminimo ?? 0;
+        product.ubicacion = productData.ubicacion || null;
 
       // Asignar categoría
       product.category = category;

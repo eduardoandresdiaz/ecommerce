@@ -5,4 +5,7 @@ export interface Product {
   price: number;
   stock: number;
   imgUrl: string;
+  // 🔹 Nuevos campos
+  stockminimo: number;
+  ubicacion: string;
 }

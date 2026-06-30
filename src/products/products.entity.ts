@@ -87,6 +87,21 @@ export class Product {
   @Column({ length: 100, nullable: true })
   proveedor: string;
 
+  @Column({
+    type: 'int',
+    default: 0,
+    nullable: true,
+  })
+  stockminimo: number;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  ubicacion: string;
+
+
   @ManyToMany(() => OrderDetail, (orderDetail) => orderDetail.products)
   orderDetail: OrderDetail[];
 

@@ -95,6 +95,10 @@ export class ProductsController {
      newProduct.resaltaroferta = newProduct.resaltaroferta ?? false;
      newProduct.nopublicable = newProduct.nopublicable ?? false;
      newProduct.proveedor = newProduct.proveedor || null;
+      // 🔹 Nuevos campos
+    newProduct.stockminimo = newProduct.stockminimo ?? 0;
+    newProduct.ubicacion = newProduct.ubicacion || null;
+    
       return await this.productsService.createProduct(newProduct);
       
     }
