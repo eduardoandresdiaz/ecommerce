@@ -10,19 +10,34 @@ export class FileUploadRepository {
         {
           resource_type: 'auto',
           transformation: [
-            { width: 400, height: 300, crop: 'limit' }, // Redimensionar a un máximo de 400x300
-            { quality: 'auto:low' }, // Reducir la calidad para optimizar el tamaño del archivo
-            { fetch_format: 'auto' }, // Usar el formato más adecuado
+            {
+              width: 400,
+              height: 400,
+              crop: 'pad',
+              background: 'white',
+            },
+            {
+              quality: 'auto:low',
+            },
+            {
+              fetch_format: 'auto',
+            },
             {
               overlay: {
                 font_family: 'Arial',
                 font_size: 30,
-                font_weight: 'bold', // Hacer el texto en negrita
+                font_weight: 'bold',
                 text: '  ',
               },
-            }, // Agregar marca de agua
-            { gravity: 'center' }, // Posicionar la marca de agua en el centro
-            { color: '#0000ff', opacity: 100, border: '2px_solid_black' }, // Estilo de la marca de agua (color blanco y borde negro)
+            },
+            {
+              gravity: 'center',
+            },
+            {
+              color: '#0000ff',
+              opacity: 100,
+              border: '2px_solid_black',
+            },
           ],
         },
         (error, result) => {
