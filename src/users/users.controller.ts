@@ -67,10 +67,10 @@ export class UsersController {
   <head>
     <meta charset="UTF-8" />
     <title>${nicknameFormatted}</title>
-    <meta name="description" content="Mira los productos publicados por ${nicknameFormatted}" />
+    <meta name="description" content="Toca la imagen para ver los productos de ${nicknameFormatted}" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="${nicknameFormatted}" />
-    <meta property="og:description" content="Mira los productos publicados por ${nicknameFormatted}" />
+    <meta property="og:description" content="Toca la imagen para ver los productos de ${nicknameFormatted}" />
     <meta property="og:image" content="${usuario.imgUrlUser || ''}" />
     <meta property="og:url" content="https://conlara.com.ar/users/share/${encodeURIComponent(
       nickname,
