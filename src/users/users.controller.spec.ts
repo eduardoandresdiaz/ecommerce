@@ -26,6 +26,7 @@ describe('UsersController', () => {
       orders: [],
       publicIdUser: '',
       sharedcount: 1,
+      proveedores: [],
     },
     {
       id: '2',
@@ -44,6 +45,7 @@ describe('UsersController', () => {
       orders: [],
       publicIdUser: '',
       sharedcount: 1,
+      proveedores: [],
     },
   ];
 
@@ -123,6 +125,7 @@ describe('UsersController', () => {
       address: 'Calle 123',
       city: 'Bogota',
       orders: [],
+      proveedores: [],
     };
 
     jest.spyOn(mockUserService, 'updateUser').mockResolvedValue(updatedUser);
