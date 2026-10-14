@@ -148,6 +148,22 @@ export class CreateUserDto {
   })
   orders: any[];
 
+  @ApiProperty({
+    required: false,
+    description: 'Listado de proveedores del usuario',
+    example: [
+      {
+        empresa: 'Arcor',
+        viajante: 'Juan Perez',
+        telefono: '2664123456',
+      },
+    ],
+  })
+  proveedores?: {
+    empresa: string;
+    viajante: string;
+    telefono: string;
+  }[];
   
   
   

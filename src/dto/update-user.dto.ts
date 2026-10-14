@@ -60,4 +60,11 @@ export class UpdateUserDto {
   @MinLength(7)
   @MaxLength(15) // Validación adicional para el DNI
   dni?: string; // Nuevo campo para el DNI
+
+  @IsOptional()
+  proveedores?: {
+    empresa: string;
+    viajante: string;
+    telefono: string;
+  }[];
 }
