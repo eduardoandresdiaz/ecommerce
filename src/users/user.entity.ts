@@ -50,6 +50,17 @@ export class User {
   orders: Order[];
   @Column({ type: 'int', default: 1 })
   sharedcount: number;
+
+  @Column({
+    type: 'jsonb',
+    nullable: false,
+    default: () => "'[]'::jsonb",
+  })
+  proveedores: {
+    empresa: string;
+    viajante: string;
+    telefono: string;
+  }[];
   
 
 }
