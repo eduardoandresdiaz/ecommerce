@@ -101,6 +101,12 @@ export class Product {
   })
   ubicacion: string;
 
+  @Column({
+    type: 'date',
+    nullable: true,
+  })
+  fechaCaducidad: string | null;
+
 
   @ManyToMany(() => OrderDetail, (orderDetail) => orderDetail.products)
   orderDetail: OrderDetail[];

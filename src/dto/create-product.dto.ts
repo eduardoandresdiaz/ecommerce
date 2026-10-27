@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  MaxLength,
+  IsDateString,
+} from 'class-validator';
 
 export class CreateProductDto {
   @ApiProperty({ description: 'Nombre del producto', example: 'Laptop Gamer' })
@@ -62,4 +70,13 @@ export class CreateProductDto {
   @IsString()
   @MaxLength(100)
   proveedor?: string;
+
+  @ApiProperty({
+    description: 'Fecha de caducidad del producto',
+    example: '2027-08-15',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaCaducidad?: string;
 }

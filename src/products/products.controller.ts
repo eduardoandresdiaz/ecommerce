@@ -98,6 +98,7 @@ export class ProductsController {
       // 🔹 Nuevos campos
     newProduct.stockminimo = newProduct.stockminimo ?? 0;
     newProduct.ubicacion = newProduct.ubicacion || null;
+    newProduct.fechaCaducidad = newProduct.fechaCaducidad ?? null;
     
       return await this.productsService.createProduct(newProduct);
       

@@ -187,6 +187,7 @@ export class ProductRepository {
         // 🔹 Nuevos campos
         product.stockminimo = productData.stockminimo ?? 0;
         product.ubicacion = productData.ubicacion || null;
+        product.fechaCaducidad = productData.fechaCaducidad ?? null;
 
       // Asignar categoría
       product.category = category;
