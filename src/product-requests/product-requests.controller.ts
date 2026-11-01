@@ -13,33 +13,30 @@ import {
     UseGuards,
   } from '@nestjs/common';
   
-  import { AuthGuard } from '@nestjs/passport';
-  
+  import { AuthGuard } from '../guards/auth.guard';
   import { ProductRequestsService } from './product-requests.service';
   import { CreateProductRequestDto } from './dto/create-product-request.dto';
   
   interface AuthenticatedRequest {
     user?: {
       id?: string;
+      userId?: string;
       sub?: string;
     };
   }
   
   @Controller('product-requests')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard)
   export class ProductRequestsController {
     constructor(
       private readonly productRequestsService: ProductRequestsService,
     ) {}
   
-    /*
-     * Obtiene el ID del comercio desde el JWT.
-     *
-     * Admite request.user.id o request.user.sub,
-     * según cómo esté creada tu estrategia JWT.
-     */
     private getOwnerId(request: AuthenticatedRequest): string {
-      const ownerId = request.user?.id ?? request.user?.sub;
+      const ownerId =
+        request.user?.id ??
+        request.user?.userId ??
+        request.user?.sub;
   
       if (!ownerId) {
         throw new UnauthorizedException(
@@ -52,7 +49,6 @@ import {
   
     /*
      * Registrar un nuevo faltante.
-     *
      * POST /product-requests
      */
     @Post()
@@ -69,25 +65,18 @@ import {
     }
   
     /*
-     * Obtener todos los faltantes pendientes
-     * del comercio autenticado.
-     *
+     * Obtener todos los faltantes pendientes.
      * GET /product-requests/pending
      */
     @Get('pending')
-    findAllPending(
-      @Req() request: AuthenticatedRequest,
-    ) {
+    findAllPending(@Req() request: AuthenticatedRequest) {
       const ownerId = this.getOwnerId(request);
   
       return this.productRequestsService.findAllPending(ownerId);
     }
   
     /*
-     * Obtener los faltantes pendientes
-     * de un proveedor específico.
-     *
-     * Ejemplo:
+     * Obtener faltantes pendientes por proveedor.
      * GET /product-requests/pending-by-supplier?supplierName=Ingersoll
      */
     @Get('pending-by-supplier')
@@ -104,9 +93,7 @@ import {
     }
   
     /*
-     * Marcar como pedida la lista pendiente
-     * de un proveedor.
-     *
+     * Marcar la lista del proveedor como pedida.
      * PATCH /product-requests/mark-as-ordered?supplierName=Ingersoll
      */
     @Patch('mark-as-ordered')
@@ -123,8 +110,7 @@ import {
     }
   
     /*
-     * Obtener un faltante por su ID.
-     *
+     * Obtener un faltante por ID.
      * GET /product-requests/:id
      */
     @Get(':id')
@@ -142,7 +128,6 @@ import {
   
     /*
      * Eliminar un faltante pendiente.
-     *
      * DELETE /product-requests/:id
      */
     @Delete(':id')
