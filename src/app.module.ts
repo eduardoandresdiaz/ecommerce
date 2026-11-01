@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-// import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
@@ -8,7 +7,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { OrdersModule } from './orders/orders.module';
 import { CategoriesModule } from './categories/categories.module';
-import { ShareController } from './share.controller'; // 👈 nuevo controlador
+import { ShareController } from './share.controller';
+import { ProductRequestsModule } from './product-requests/product-requests.module';
 
 @Module({
   imports: [
@@ -18,17 +18,59 @@ import { ShareController } from './share.controller'; // 👈 nuevo controlador
     ProductsModule,
     CategoriesModule,
     OrdersModule,
+
+    // Módulo de faltantes
+    ProductRequestsModule,
+
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' }, // expira en 1 hora
+      signOptions: {
+        expiresIn: '1h',
+      },
     }),
+
     FileUploadModule,
   ],
-  controllers: [ShareController], // 👈 lo agregás acá
+
+  controllers: [ShareController],
+
   providers: [],
 })
 export class AppModule {}
+
+// import { Module } from '@nestjs/common';
+// // import { TypeOrmModule } from '@nestjs/typeorm';
+// import { UsersModule } from './users/users.module';
+// import { AuthModule } from './auth/auth.module';
+// import { ProductsModule } from './products/products.module';
+// import { typeconfig } from './config/typeOrm.config';
+// import { JwtModule } from '@nestjs/jwt';
+// import { FileUploadModule } from './file-upload/file-upload.module';
+// import { OrdersModule } from './orders/orders.module';
+// import { CategoriesModule } from './categories/categories.module';
+// import { ShareController } from './share.controller'; // 👈 nuevo controlador
+// import { ProductRequestsModule } from './product-requests/product-requests.module';
+
+// @Module({
+//   imports: [
+//     typeconfig,
+//     AuthModule,
+//     UsersModule,
+//     ProductsModule,
+//     CategoriesModule,
+//     OrdersModule,
+//     JwtModule.register({
+//       global: true,
+//       secret: process.env.JWT_SECRET,
+//       signOptions: { expiresIn: '1h' }, // expira en 1 hora
+//     }),
+//     FileUploadModule,
+//   ],
+//   controllers: [ShareController], // 👈 lo agregás acá
+//   providers: [],
+// })
+// export class AppModule {}
 
 // import { Module } from '@nestjs/common';
 // import { UsersModule } from './users/users.module';

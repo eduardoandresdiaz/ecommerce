@@ -1,5 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from '../orders/orders.entity';
+import { ProductRequest } from '../product-requests/product-request.entity';
+
 
 @Entity({ name: 'users' })
 export class User {
@@ -48,6 +50,14 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @OneToMany(
+    () => ProductRequest,
+    (productRequest) => productRequest.owner,
+  )
+  productRequests: ProductRequest[];
+
+
   @Column({ type: 'int', default: 1 })
   sharedcount: number;
 

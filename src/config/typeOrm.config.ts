@@ -6,6 +6,7 @@ import { Product } from '../products/products.entity';
 import { Category } from '../categories/categories.entity'; // Importa la entidad Category
 import { Order } from '../orders/orders.entity';
 import { OrderDetail } from '../orders-details/orders-details.entity';
+import { ProductRequest } from '../product-requests/product-request.entity';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { OrderDetail } from '../orders-details/orders-details.entity';
           username: configService.get<string>('DB_USERNAME'),
           password: configService.get<string>('DB_PASSWORD'),
           database: configService.get<string>('DB_NAME'),
-          entities: [User, Product, Category, Order, OrderDetail], // Asegúrate de incluir la entidad Category
+          entities: [User, Product, Category, Order, OrderDetail,ProductRequest], // Asegúrate de incluir la entidad Category
           synchronize: false, // Cambiar a false para hacer migraciones
           logging: true, // Habilitar logs
         };
