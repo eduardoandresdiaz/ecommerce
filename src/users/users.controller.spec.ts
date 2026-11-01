@@ -24,6 +24,7 @@ describe('UsersController', () => {
       imgUrlUser:
         'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
       orders: [],
+      productRequests: [],
       publicIdUser: '',
       sharedcount: 1,
       proveedores: [],
@@ -43,6 +44,7 @@ describe('UsersController', () => {
       imgUrlUser:
         'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // 🔥 Nuevo atributo agregado
       orders: [],
+      productRequests: [],
       publicIdUser: '',
       sharedcount: 1,
       proveedores: [],
