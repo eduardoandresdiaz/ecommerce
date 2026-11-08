@@ -5,14 +5,26 @@ import { Product } from './products.entity';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly productRepository: ProductRepository) {}
+  constructor(private readonly productRepository: ProductRepository) { }
   async findProductsByKeywords(keywords: string): Promise<Product[]> {
     return await this.productRepository.findProductsByKeywords(keywords);
   }
-
-  async getProducts(page: number, limit: number): Promise<Product[]> {
-    return this.productRepository.getProducts(page, limit);
+  async getProducts(
+    page: number,
+    limit: number,
+    category?: string,
+  ): Promise<Product[]> {
+    return this.productRepository.getProducts(
+      page,
+      limit,
+      category,
+    );
   }
+
+
+  // async getProducts(page: number, limit: number): Promise<Product[]> {
+  //   return this.productRepository.getProducts(page, limit);
+  // }
 
   async getProductsByCreatorEmail(creatorEmail: string): Promise<Product[]> {
     return await this.productRepository.getProductsByCreatorEmail(creatorEmail);

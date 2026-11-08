@@ -10,15 +10,15 @@ export class ProductRepository {
     private productRepository: Repository<Product>,
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
-  ) {}
+  ) { }
   async findProductsByKeywords(input: string): Promise<Product[]> {
     const keywords = input
       .toLowerCase()
       .split(/\s+/)
       .filter((w) => w.length > 1); // Ignora palabras muy cortas
-  
+
     if (keywords.length === 0) return [];
-  
+
     // 👉 Genera variantes singular/plural automáticamente
     const expandedKeywords = keywords.flatMap((kw) => {
       if (kw.endsWith('s')) {
@@ -27,52 +27,76 @@ export class ProductRepository {
         return [kw, kw + 's']; // ej: lampara → lampara, lamparas
       }
     });
-  
+
     const query = this.productRepository.createQueryBuilder('product');
-  
+
     const whereExpressions: string[] = [];
     const parameters: Record<string, string> = {};
-  
+
     expandedKeywords.forEach((word, index) => {
       const param = `%${word}%`;
       parameters[`kw${index}`] = param;
-  
+
       whereExpressions.push(`
         LOWER(product.name) LIKE :kw${index}
         OR LOWER(product.description) LIKE :kw${index}
       `);
     });
-  
+
     query.where(whereExpressions.join(' OR '), parameters);
-  
+
     const products = await query.getMany();
-  
+
     const rankedProducts = products
       .map((product) => {
         const text = (product.name + ' ' + product.description).toLowerCase();
-  
+
         const matchCount = expandedKeywords.filter((kw) => text.includes(kw)).length;
-  
+
         return { product, matchCount };
       })
       .filter((p) => p.matchCount > 0) // Excluye los que no coinciden
       .sort((a, b) => b.matchCount - a.matchCount); // Ordena por relevancia
-  
+
     return rankedProducts.map(({ product }) => product);
   }
-  
-  async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {
-    return await this.productRepository.find({
-      relations: {
-        category: true,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (page - 1) * limit, // Salta los registros de las páginas anteriores
-      take: limit, // Limita la cantidad de registros devueltos
-    });
+  async getProducts(
+    page: number = 1,
+    limit: number = 100,
+    category?: string,
+  ): Promise<Product[]> {
+    const query = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .orderBy('product.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    if (category?.trim()) {
+      query.andWhere(
+        'LOWER(category.name) = LOWER(:category)',
+        {
+          category: category.trim(),
+        },
+      );
+    }
+
+    return await query.getMany();
   }
+
+
+  // async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {
+  //   return await this.productRepository.find({
+  //     relations: {
+  //       category: true,
+  //     },
+  //     order: {
+  //       createdAt: 'DESC',
+  //     },
+  //     skip: (page - 1) * limit, // Salta los registros de las páginas anteriores
+  //     take: limit, // Limita la cantidad de registros devueltos
+  //   });
+  // }
 
   // async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {
   //   const products = await this.productRepository.find({
@@ -98,7 +122,7 @@ export class ProductRepository {
     });
   }
 
- 
+
 
   async getProductById(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({
@@ -146,19 +170,19 @@ export class ProductRepository {
     if (!productData.category || !productData.category.name) {
       throw new Error('La categoría es obligatoria y debe incluir un nombre.');
     }
-  
+
     try {
       // Buscar o crear la categoría
       let category = await this.categoriesRepository.findOne({
         where: { name: productData.category.name },
       });
-  
+
       if (!category) {
         category = new Category();
         category.name = productData.category.name;
         category = await this.categoriesRepository.save(category);
       }
-  
+
       // Crear el producto
       const product = new Product();
       product.name = productData.name;
@@ -170,28 +194,28 @@ export class ProductRepository {
         'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742769896/cyi4pszz0ighbcdgpujw.jpg';
       product.creatorEmail = productData.creatorEmail;
       product.telefono = productData.telefono || null;
-  
+
       // Fecha de creación
       product.createdAt = new Date();
-  
+
       // ✅ Usar la fecha enviada o calcular una por defecto (+15 días)
       product.expiresAt = productData.expiresAt
         ? new Date(productData.expiresAt)
         : new Date(product.createdAt.getTime() + 15 * 24 * 60 * 60 * 1000);
-  
-        product.mostrarprecio = productData.mostrarprecio ?? true;
-        product.resaltaroferta = productData.resaltaroferta ?? false;
-        product.nopublicable = productData.nopublicable ?? false;
-        product.proveedor = productData.proveedor ?? null;
 
-        // 🔹 Nuevos campos
-        product.stockminimo = productData.stockminimo ?? 0;
-        product.ubicacion = productData.ubicacion || null;
-        product.fechaCaducidad = productData.fechaCaducidad ?? null;
+      product.mostrarprecio = productData.mostrarprecio ?? true;
+      product.resaltaroferta = productData.resaltaroferta ?? false;
+      product.nopublicable = productData.nopublicable ?? false;
+      product.proveedor = productData.proveedor ?? null;
+
+      // 🔹 Nuevos campos
+      product.stockminimo = productData.stockminimo ?? 0;
+      product.ubicacion = productData.ubicacion || null;
+      product.fechaCaducidad = productData.fechaCaducidad ?? null;
 
       // Asignar categoría
       product.category = category;
-  
+
       // Guardar en la base
       await this.productRepository.save(product);
       return `Producto creado exitosamente con ID: ${product.id}`;

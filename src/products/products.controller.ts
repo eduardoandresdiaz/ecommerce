@@ -26,34 +26,54 @@ import { Response } from 'express';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Get('search')
   async findProductsByKeywords(@Query('q') q: string): Promise<Product[]> {
     return await this.productsService.findProductsByKeywords(q);
   }
-    // ⭐ Nuevo endpoint PATCH para actualizar stock
-    @HttpCode(200)
-    @Patch(':id')
-    @UseGuards(AuthGuard)
-    async updateStock(
-      @Param('id', ParseUUIDPipe) id: string,
-      @Body() body: { stock: number },
-    ) {
-      if (typeof body.stock !== 'number' || body.stock < 0) {
-        throw new HttpException('Stock inválido', HttpStatus.BAD_REQUEST);
-      }
-      return await this.productsService.updateStock(id, body.stock);
+  // ⭐ Nuevo endpoint PATCH para actualizar stock
+  @HttpCode(200)
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  async updateStock(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { stock: number },
+  ) {
+    if (typeof body.stock !== 'number' || body.stock < 0) {
+      throw new HttpException('Stock inválido', HttpStatus.BAD_REQUEST);
     }
-
+    return await this.productsService.updateStock(id, body.stock);
+  }
   @HttpCode(200)
   @Get()
-  getProducts(@Query('page') page: number, @Query('limit') limit: number) {
+  getProducts(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('category') category?: string,
+  ) {
     if (page && limit) {
-      return this.productsService.getProducts(page, limit);
+      return this.productsService.getProducts(
+        Number(page),
+        Number(limit),
+        category,
+      );
     }
-    return this.productsService.getProducts(1, 5);
+
+    return this.productsService.getProducts(
+      1,
+      5,
+      category,
+    );
   }
+  // @HttpCode(200)
+  // @Get()
+  // getProducts(@Query('page') page: number, @Query('limit') limit: number) {
+  //   if (page && limit) {
+  //     return this.productsService.getProducts(page, limit);
+  //   }
+  //   return this.productsService.getProducts(1, 5);
+  // }
 
   @HttpCode(200)
   @Get('seeders')
@@ -91,17 +111,17 @@ export class ProductsController {
       newProduct.telefono = newProduct.telefono || null;
 
       // ✅ Inicialización de campos adicionales
-     newProduct.mostrarprecio = newProduct.mostrarprecio ?? true;
-     newProduct.resaltaroferta = newProduct.resaltaroferta ?? false;
-     newProduct.nopublicable = newProduct.nopublicable ?? false;
-     newProduct.proveedor = newProduct.proveedor || null;
+      newProduct.mostrarprecio = newProduct.mostrarprecio ?? true;
+      newProduct.resaltaroferta = newProduct.resaltaroferta ?? false;
+      newProduct.nopublicable = newProduct.nopublicable ?? false;
+      newProduct.proveedor = newProduct.proveedor || null;
       // 🔹 Nuevos campos
-    newProduct.stockminimo = newProduct.stockminimo ?? 0;
-    newProduct.ubicacion = newProduct.ubicacion || null;
-    newProduct.fechaCaducidad = newProduct.fechaCaducidad ?? null;
-    
+      newProduct.stockminimo = newProduct.stockminimo ?? 0;
+      newProduct.ubicacion = newProduct.ubicacion || null;
+      newProduct.fechaCaducidad = newProduct.fechaCaducidad ?? null;
+
       return await this.productsService.createProduct(newProduct);
-      
+
     }
     throw new HttpException('Producto inválido', HttpStatus.BAD_REQUEST);
   }
