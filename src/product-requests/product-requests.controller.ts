@@ -96,18 +96,35 @@ import {
      * Marcar la lista del proveedor como pedida.
      * PATCH /product-requests/mark-as-ordered?supplierName=Ingersoll
      */
-    @Patch('mark-as-ordered')
-    markSupplierListAsOrdered(
-      @Req() request: AuthenticatedRequest,
-      @Query('supplierName') supplierName: string,
-    ) {
-      const ownerId = this.getOwnerId(request);
+    // @Patch('mark-as-ordered')
+    // markSupplierListAsOrdered(
+    //   @Req() request: AuthenticatedRequest,
+    //   @Query('supplierName') supplierName: string,
+    // ) {
+    //   const ownerId = this.getOwnerId(request);
   
-      return this.productRequestsService.markSupplierListAsOrdered(
-        ownerId,
-        supplierName ?? '',
-      );
-    }
+    //   return this.productRequestsService.markSupplierListAsOrdered(
+    //     ownerId,
+    //     supplierName ?? '',
+    //   );
+    // }
+    /*
+ * Marcar un faltante individual como pedido.
+ * PATCH /product-requests/:id/mark-as-ordered
+ */
+@Patch(':id/mark-as-ordered')
+markAsOrdered(
+  @Req() request: AuthenticatedRequest,
+  @Param('id', ParseUUIDPipe) requestId: string,
+) {
+  const ownerId = this.getOwnerId(request);
+
+  return this.productRequestsService.markAsOrdered(
+    ownerId,
+    requestId,
+  );
+}
+
   
     /*
      * Obtener un faltante por ID.
