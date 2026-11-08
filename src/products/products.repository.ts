@@ -83,6 +83,21 @@ export class ProductRepository {
 
     return await query.getMany();
   }
+  async getProductsForSitemap(): Promise<Product[]> {
+    return await this.productRepository.find({
+      select: {
+        id: true,
+        createdAt: true,
+      },
+      where: {
+        nopublicable: false,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
 
 
   // async getProducts(page: number = 1, limit: number = 100): Promise<Product[]> {

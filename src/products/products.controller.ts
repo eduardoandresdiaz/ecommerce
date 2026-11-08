@@ -93,6 +93,34 @@ export class ProductsController {
     return this.productsService.getProductsByCreatorEmail(creatorEmail);
   }
 
+  /*
+   * Sitemap dinámico con todos los productos publicables.
+   * GET /products/sitemap.xml
+   */
+  @Get('sitemap.xml')
+  async getSitemap(@Res() res: Response) {
+    const sitemap =
+      await this.productsService.generateSitemap();
+
+    res.setHeader(
+      'Content-Type',
+      'application/xml; charset=utf-8',
+    );
+
+    res.setHeader(
+      'Cache-Control',
+      'public, max-age=3600',
+    );
+
+    return res.status(HttpStatus.OK).send(sitemap);
+  }
+
+
+
+
+
+
+
   @HttpCode(200)
   @Get(':id')
   async getProductById(@Param('id', ParseUUIDPipe) id: string) {
