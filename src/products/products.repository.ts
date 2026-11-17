@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { Product } from './products.entity';
 import { Category } from '../categories/categories.entity';
 import { NotFoundException } from '@nestjs/common';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../utils/product-share-link';
 
 export class ProductRepository {
   constructor(
@@ -204,9 +205,7 @@ export class ProductRepository {
       product.description = productData.description;
       product.price = productData.price;
       product.stock = productData.stock;
-      product.imgUrl =
-        productData.imgUrl ||
-        'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742769896/cyi4pszz0ighbcdgpujw.jpg';
+      product.imgUrl = productData.imgUrl || DEFAULT_PRODUCT_IMAGE_URL;
       product.creatorEmail = productData.creatorEmail;
       product.telefono = productData.telefono || null;
 

@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Category } from '../categories/categories.entity';
 import { OrderDetail } from '../orders-details/orders-details.entity';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../utils/product-share-link';
 
 @Entity({ name: 'products' })
 export class Product {
@@ -44,11 +45,7 @@ export class Product {
   })
   stock: number;
 
-  @Column({
-    type: 'text',
-    default:
-      'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1742769896/cyi4pszz0ighbcdgpujw.jpg',
-  })
+  @Column({ type: 'text', default: DEFAULT_PRODUCT_IMAGE_URL })
   imgUrl: string;
 
   @Column({

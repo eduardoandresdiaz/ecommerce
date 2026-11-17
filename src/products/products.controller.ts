@@ -23,6 +23,11 @@ import { Roles } from '../decorators/roles/roles.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 import { Role } from '../enum/roles.enum';
 import { Response } from 'express';
+import {
+  getProductShareImageUrl,
+  getProductIdFromShareKey,
+  getProductShareUrl,
+} from '../utils/product-share-link';
 
 @Controller('products')
 export class ProductsController {
@@ -192,13 +197,21 @@ export class ProductsController {
   /////////////////// FIN AGREGADO
 
   @Get('share/:id')
-  async shareProduct(@Param('id') id: string, @Res() res: Response) {
+  async shareProduct(@Param('id') shareKey: string, @Res() res: Response) {
+    const id = getProductIdFromShareKey(shareKey);
+    if (!id) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send('Identificador de producto inválido');
+    }
+
     const product = await this.productsService.getProductById(id);
     if (!product) {
       return res.status(HttpStatus.NOT_FOUND).send('Producto no encontrado');
     }
-    const productUrl = `https://ecommerce-9558.onrender.com/products/share/${id}`;
+    const productUrl = getProductShareUrl(product.name, id);
     const realProductUrl = `https://conlara.com.ar/productos/${id}`;
+    const imageUrl = getProductShareImageUrl(product.imgUrl);
 
     const html = `
     <!DOCTYPE html>
@@ -210,7 +223,9 @@ export class ProductsController {
         <meta property="og:type" content="product" />
         <meta property="og:title" content="${product.name}" />
         <meta property="og:description" content="${product.description}" />
-        <meta property="og:image" content="${product.imgUrl}" />
+        <meta property="og:image" content="${imageUrl}" />
+        <meta property="og:image:secure_url" content="${imageUrl}" />
+        <meta property="og:image:alt" content="${product.name}" />
         <meta property="og:url" content="${productUrl}" />
         <meta property="og:site_name" content="Conlara Tienda" />
         <meta property="fb:app_id" content="1010635721174127" />
@@ -230,9 +245,16 @@ export class ProductsController {
 
   @Get('share-facebook/:id')
   async compartirProductoFacebook(
-    @Param('id') id: string,
+    @Param('id') shareKey: string,
     @Res() res: Response,
   ) {
+    const id = getProductIdFromShareKey(shareKey);
+    if (!id) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send('Identificador de producto inválido');
+    }
+
     try {
       const producto = await this.productsService.getProductById(id);
 
@@ -243,10 +265,9 @@ export class ProductsController {
       const nombre = producto.name?.replace(/"/g, '&quot;') || 'Producto';
       const descripcion =
         producto.description?.replace(/"/g, '&quot;') || '¡Mirá este producto!';
-      const imagen =
-        producto.imgUrl ||
-        'https://conlara.com.ar/assets/img/default-product.jpg';
+      const imagen = getProductShareImageUrl(producto.imgUrl);
       const destinoFinal = `https://conlara.com.ar/productos/${producto.id}`;
+      const shareUrl = getProductShareUrl(producto.name, producto.id);
 
       const html = `
       <!DOCTYPE html>
@@ -259,7 +280,9 @@ export class ProductsController {
         <meta property="og:title" content="${nombre}" />
         <meta property="og:description" content="${descripcion}" />
         <meta property="og:image" content="${imagen}" />
-        <meta property="og:url" content="https://conlara.com.ar/products/share-facebook/${producto.id}" />
+        <meta property="og:image:secure_url" content="${imagen}" />
+        <meta property="og:image:alt" content="${nombre}" />
+        <meta property="og:url" content="${shareUrl}" />
         <meta property="og:site_name" content="Conlara Tienda" />
         <meta property="fb:app_id" content="1010635721174127" />
       </head>
