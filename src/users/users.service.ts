@@ -129,7 +129,7 @@ export class UserService {
   private async assertMerchantOwner(ownerId: string): Promise<User> {
     const owner = await this.userRepository.getUserById(ownerId);
 
-    if (owner.merchantOwnerId || owner.isAdmin || !owner.isActive) {
+    if (owner.merchantOwnerId || !owner.isActive) {
       throw new ForbiddenException(
         'Solo el dueño del comercio puede administrar empleados.',
       );

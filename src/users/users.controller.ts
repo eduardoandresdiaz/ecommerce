@@ -76,7 +76,7 @@ export class UsersController {
   @UseGuards(AuthGuard)
   getEmployees(@Req() request: AuthenticatedRequest) {
     const user = this.getAuthenticatedUser(request);
-    if (user.merchantOwnerId || user.isadmin) {
+    if (user.merchantOwnerId) {
       throw new ForbiddenException(
         'Solo el dueño del comercio puede administrar empleados.',
       );
@@ -92,7 +92,7 @@ export class UsersController {
     @Body() employeeData: CreateEmployeeDto,
   ) {
     const user = this.getAuthenticatedUser(request);
-    if (user.merchantOwnerId || user.isadmin) {
+    if (user.merchantOwnerId) {
       throw new ForbiddenException(
         'Solo el dueño de un comercio puede crear empleados.',
       );
@@ -108,7 +108,7 @@ export class UsersController {
     @Param('id', ParseUUIDPipe) employeeId: string,
   ) {
     const user = this.getAuthenticatedUser(request);
-    if (user.merchantOwnerId || user.isadmin) {
+    if (user.merchantOwnerId) {
       throw new ForbiddenException(
         'Solo el dueño de un comercio puede desactivar empleados.',
       );
