@@ -13,22 +13,44 @@ export class AuthService {
 
   async signIn(email: string, password: string) {
     const user = await this.userRepository.findByEmail(email);
-    const isPasswordMach = await bcrypt.compare(password, user.password);
-    console.log(user.password);
-    console.log(isPasswordMach);
-    if (!user || !isPasswordMach) {
+    if (!user || !user.isActive) {
+      throw new BadRequestException('Credenciales inválidas.');
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
       throw new BadRequestException('credenciales invalidas');
     }
+
+    const merchantOwner = user.merchantOwnerId
+      ? await this.userRepository.getUserById(user.merchantOwnerId)
+      : user;
+
+    if (!merchantOwner.isActive) {
+      throw new BadRequestException('La cuenta del comercio está desactivada.');
+    }
+
     const userPayload = {
       id: user.id,
       email: user.email,
       isadmin: user.isAdmin,
+      merchantOwnerId: user.merchantOwnerId,
+      merchantOwnerEmail: merchantOwner.email,
     };
     const token = this.jwtService.sign(userPayload);
-    return { token, message: 'bienvenido' };
+    return {
+      token,
+      message: 'bienvenido',
+      user: {
+        id: user.id,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        merchantOwnerId: user.merchantOwnerId,
+        merchantOwnerEmail: merchantOwner.email,
+      },
+    };
   }
   async signUp(user: CreateUserDto) {
-    console.log('entro a signUp en service ');
     const foundUser = await this.userRepository.findByEmail(user.email);
     if (foundUser) {
       throw new BadRequestException('el usuario ya registrado');
@@ -45,6 +67,8 @@ export class AuthService {
     const createdUser = await this.userRepository.createUser({
       ...user,
       password: hashedPassword,
+      merchantOwnerId: null,
+      isActive: true,
       imgUrlUser:
         user.imgUrlUser ||
         'https://res.cloudinary.com/dvp0fdhyc/image/upload/v1745373239/sinfoto_rxnp9w.jpg', // Asegurar que tenga un valor

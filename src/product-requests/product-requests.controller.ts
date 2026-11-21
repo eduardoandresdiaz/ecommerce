@@ -23,6 +23,7 @@ import {
       id?: string;
       userId?: string;
       sub?: string;
+      merchantOwnerId?: string | null;
     };
   }
   
@@ -35,6 +36,7 @@ import {
   
     private getOwnerId(request: AuthenticatedRequest): string {
       const ownerId =
+        request.user?.merchantOwnerId ??
         request.user?.id ??
         request.user?.userId ??
         request.user?.sub;

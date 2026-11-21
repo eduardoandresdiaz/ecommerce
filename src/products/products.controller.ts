@@ -14,6 +14,9 @@ import {
   HttpException,
   HttpStatus,
   Res,
+  Req,
+  ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './products.entity';
@@ -23,15 +26,46 @@ import { Roles } from '../decorators/roles/roles.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 import { Role } from '../enum/roles.enum';
 import { Response } from 'express';
+import { Request } from 'express';
 import {
   getProductShareImageUrl,
   getProductIdFromShareKey,
   getProductShareUrl,
 } from '../utils/product-share-link';
 
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id?: string;
+    email?: string;
+    merchantOwnerEmail?: string;
+  };
+}
+
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
+
+  private getMerchantEmail(request: AuthenticatedRequest): string {
+    const email = request.user?.merchantOwnerEmail ?? request.user?.email;
+    if (!email) {
+      throw new UnauthorizedException('No se pudo identificar al comercio.');
+    }
+    return email;
+  }
+
+  private async assertProductBelongsToMerchant(
+    request: AuthenticatedRequest,
+    productId: string,
+  ): Promise<string> {
+    const merchantEmail = this.getMerchantEmail(request);
+    const product = await this.productsService.getProductById(productId);
+    if (product.creatorEmail.toLowerCase() !== merchantEmail.toLowerCase()) {
+      throw new ForbiddenException(
+        'No tienes permiso para modificar este producto.',
+      );
+    }
+    return merchantEmail;
+  }
 
   @Get('search')
   async findProductsByKeywords(@Query('q') q: string): Promise<Product[]> {
@@ -44,10 +78,12 @@ export class ProductsController {
   async updateStock(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: { stock: number },
+    @Req() request: AuthenticatedRequest,
   ) {
     if (typeof body.stock !== 'number' || body.stock < 0) {
       throw new HttpException('Stock inválido', HttpStatus.BAD_REQUEST);
     }
+    await this.assertProductBelongsToMerchant(request, id);
     return await this.productsService.updateStock(id, body.stock);
   }
   @HttpCode(200)
@@ -138,8 +174,13 @@ export class ProductsController {
 
   @HttpCode(200)
   @Post()
-  async createProduct(@Body() newProduct: Product): Promise<string> {
+  @UseGuards(AuthGuard)
+  async createProduct(
+    @Body() newProduct: Product,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<string> {
     if (validateProduct(newProduct)) {
+      newProduct.creatorEmail = this.getMerchantEmail(request);
       newProduct.telefono = newProduct.telefono || null;
       newProduct.telefono = newProduct.telefono || null;
 
@@ -166,9 +207,13 @@ export class ProductsController {
   async updateProduct(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateData: Partial<Product>,
+    @Req() request: AuthenticatedRequest,
   ) {
     if (validateProduct(updateData)) {
-      return await this.productsService.updateProduct(id, updateData);
+      await this.assertProductBelongsToMerchant(request, id);
+      const safeUpdateData = { ...updateData };
+      delete safeUpdateData.creatorEmail;
+      return await this.productsService.updateProduct(id, safeUpdateData);
     }
     throw new HttpException(
       'Datos del producto inválidos',
@@ -179,7 +224,11 @@ export class ProductsController {
   @HttpCode(200)
   @Delete(':id')
   @UseGuards(AuthGuard)
-  async deleteProduct(@Param('id', ParseUUIDPipe) id: string) {
+  async deleteProduct(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    await this.assertProductBelongsToMerchant(request, id);
     return await this.productsService.deleteProduct(id);
   }
 

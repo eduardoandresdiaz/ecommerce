@@ -4,6 +4,7 @@ import { UsersController } from '../users/users.controller'; // Ruta relativa
 import { AuthGuard } from '../guards/auth.guard'; // Ruta relativa
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service'; // Ruta relativa
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -28,6 +29,8 @@ describe('UsersController', () => {
       publicIdUser: '',
       sharedcount: 1,
       proveedores: [],
+      merchantOwnerId: null,
+      isActive: true,
     },
     {
       id: '2',
@@ -48,6 +51,8 @@ describe('UsersController', () => {
       publicIdUser: '',
       sharedcount: 1,
       proveedores: [],
+      merchantOwnerId: null,
+      isActive: true,
     },
   ];
 
@@ -78,6 +83,12 @@ describe('UsersController', () => {
             verify: jest.fn().mockReturnValue({ userId: 'mock-user-id' }),
           },
         },
+        {
+          provide: getRepositoryToken(User),
+          useValue: {
+            findOneBy: jest.fn(),
+          },
+        },
       ],
     }).compile();
     controller = module.get<UsersController>(UsersController);
@@ -89,13 +100,17 @@ describe('UsersController', () => {
   });
 
   it('debe retornar una lista de usuarios', async () => {
-    const result = await controller.getUsers(1, 10);
+    const result = await controller.getUsers(1, 10, {
+      user: { id: '1', email: mockUsers[0].email, isadmin: true },
+    });
     expect(result).toEqual(mockUsers);
     expect(mockUserService.getUsers).toHaveBeenCalledWith(1, 10);
   });
 
   it('debe retornar un usuario por ID', async () => {
-    const result = await controller.getUserById('1');
+    const result = await controller.getUserById('1', {
+      user: { id: '1', email: mockUsers[0].email },
+    });
     expect(result).toEqual(mockUsers[0]);
     expect(mockUserService.getUserById).toHaveBeenCalledWith('1');
   });
@@ -106,7 +121,9 @@ describe('UsersController', () => {
 
     jest.spyOn(mockUserService, 'deleteUser').mockResolvedValue(deleteResult);
 
-    const result = await controller.deleteUser(userId);
+    const result = await controller.deleteUser(userId, {
+      user: { id: userId, email: mockUsers[0].email },
+    });
 
     expect(result).toEqual(deleteResult);
     expect(mockUserService.deleteUser).toHaveBeenCalledWith(userId);
@@ -132,7 +149,11 @@ describe('UsersController', () => {
 
     jest.spyOn(mockUserService, 'updateUser').mockResolvedValue(updatedUser);
 
-    const result = await controller.updateUser(userId, updateUserDto);
+    const result = await controller.updateUser(
+      userId,
+      updateUserDto,
+      { user: { id: userId, email: mockUsers[0].email } },
+    );
 
     expect(result).toEqual(updatedUser);
     expect(mockUserService.updateUser).toHaveBeenCalledWith(

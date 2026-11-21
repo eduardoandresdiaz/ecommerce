@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { FileUploadRepository } from './file-upload.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '../products/products.entity';
@@ -17,12 +21,11 @@ export class FileUploadService {
   ) {}
 
   async uploadProductImage(file: Express.Multer.File, productId: string) {
-    console.log('Archivo recibido:', file);
     const productExist = await this.productRepository.findOneBy({
       id: productId,
     });
     if (!productExist) {
-      return 'El producto no existe';
+      throw new NotFoundException('El producto no existe.');
     }
     const uploadedImage = await this.fileUploadRepository.uploadImage(file);
     await this.productRepository.update(productId, {
@@ -33,11 +36,9 @@ export class FileUploadService {
   }
 
   async uploadProfileImage(file: Express.Multer.File, userId: string) {
-    console.log('Imagen de perfil recibida:', file);
-
     const userExist = await this.userRepository.findOneBy({ id: userId });
     if (!userExist) {
-      return 'El usuario no existe';
+      throw new NotFoundException('El usuario no existe.');
     }
 
     // **Eliminar imagen anterior si existe**
@@ -59,6 +60,51 @@ export class FileUploadService {
     });
 
     return await this.userRepository.findOneBy({ id: userId });
+  }
+
+  async assertProductBelongsToMerchant(
+    productId: string,
+    merchantEmail: string,
+  ): Promise<void> {
+    const product = await this.productRepository.findOneBy({ id: productId });
+    if (!product) {
+      throw new NotFoundException('El producto no existe.');
+    }
+    if (product.creatorEmail.toLowerCase() !== merchantEmail.toLowerCase()) {
+      throw new ForbiddenException(
+        'No tienes permiso para modificar este producto.',
+      );
+    }
+  }
+
+  async assertProductImageBelongsToMerchant(
+    publicId: string,
+    merchantEmail: string,
+    productId: string,
+  ): Promise<void> {
+    const product = await this.productRepository.findOneBy({ id: productId });
+    const filename = product?.imgUrl?.split('/').pop()?.split('.')[0];
+    if (
+      !product ||
+      product.creatorEmail.toLowerCase() !== merchantEmail.toLowerCase() ||
+      filename !== publicId
+    ) {
+      throw new ForbiddenException(
+        'No tienes permiso para eliminar esta imagen.',
+      );
+    }
+  }
+
+  async assertProfileImageBelongsToUser(
+    publicId: string,
+    userId: string,
+  ): Promise<void> {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user || user.publicIdUser !== publicId) {
+      throw new ForbiddenException(
+        'No tienes permiso para eliminar esta imagen de perfil.',
+      );
+    }
   }
 
   // async uploadProfileImage(file: Express.Multer.File, userId: string) {

@@ -4,29 +4,116 @@ import {
   Delete,
   Get,
   HttpCode,
+  ForbiddenException,
   Param,
+  Patch,
   ParseUUIDPipe,
+  Post,
   Put,
   Query,
+  Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './users.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { AuthGuard } from '../guards/auth.guard';
+import { CreateEmployeeDto } from '../dto/create-employee.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
+
+interface AuthenticatedRequest {
+  user?: {
+    id?: string;
+    email?: string;
+    merchantOwnerId?: string | null;
+    merchantOwnerEmail?: string;
+    isadmin?: boolean;
+  };
+}
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
 
+  private getAuthenticatedUser(request: AuthenticatedRequest) {
+    if (!request.user?.id || !request.user.email) {
+      throw new UnauthorizedException('No se pudo identificar al usuario.');
+    }
+
+    return request.user;
+  }
+
+  private assertCanAccessUser(
+    request: AuthenticatedRequest,
+    targetUserId: string,
+  ) {
+    const user = this.getAuthenticatedUser(request);
+    if (!user.isadmin && user.id !== targetUserId) {
+      throw new ForbiddenException('No tienes permiso para acceder a esta cuenta.');
+    }
+    return user;
+  }
+
   @ApiBearerAuth()
   @Get()
   @HttpCode(200)
   @UseGuards(AuthGuard)
-  getUsers(@Query('page') page: number, @Query('limit') limit: number) {
+  getUsers(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    if (!this.getAuthenticatedUser(request).isadmin) {
+      throw new ForbiddenException('Solo un administrador puede listar usuarios.');
+    }
     return this.userService.getUsers(page, limit);
+  }
+
+  @ApiBearerAuth()
+  @Get('employees')
+  @UseGuards(AuthGuard)
+  getEmployees(@Req() request: AuthenticatedRequest) {
+    const user = this.getAuthenticatedUser(request);
+    if (user.merchantOwnerId || user.isadmin) {
+      throw new ForbiddenException(
+        'Solo el dueño del comercio puede administrar empleados.',
+      );
+    }
+    return this.userService.getEmployees(user.id);
+  }
+
+  @ApiBearerAuth()
+  @Post('employees')
+  @UseGuards(AuthGuard)
+  createEmployee(
+    @Req() request: AuthenticatedRequest,
+    @Body() employeeData: CreateEmployeeDto,
+  ) {
+    const user = this.getAuthenticatedUser(request);
+    if (user.merchantOwnerId || user.isadmin) {
+      throw new ForbiddenException(
+        'Solo el dueño de un comercio puede crear empleados.',
+      );
+    }
+    return this.userService.createEmployee(user.id, employeeData);
+  }
+
+  @ApiBearerAuth()
+  @Patch('employees/:id/deactivate')
+  @UseGuards(AuthGuard)
+  deactivateEmployee(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) employeeId: string,
+  ) {
+    const user = this.getAuthenticatedUser(request);
+    if (user.merchantOwnerId || user.isadmin) {
+      throw new ForbiddenException(
+        'Solo el dueño de un comercio puede desactivar empleados.',
+      );
+    }
+    return this.userService.deactivateEmployee(user.id, employeeId);
   }
 
   @HttpCode(200)
@@ -492,14 +579,29 @@ export class UsersController {
   @HttpCode(200)
   @Get(':id')
   @UseGuards(AuthGuard)
-  getUserById(@Param('id', ParseUUIDPipe) id: string) {
+  getUserById(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    this.assertCanAccessUser(request, id);
     return this.userService.getUserById(id);
   }
 
   @HttpCode(200)
   @Get('email/:email')
   @UseGuards(AuthGuard)
-  getUserByEmail(@Param('email') email: string) {
+  getUserByEmail(
+    @Param('email') email: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    const user = this.getAuthenticatedUser(request);
+    if (
+      !user.isadmin &&
+      user.email.toLowerCase() !== email.toLowerCase() &&
+      user.merchantOwnerEmail?.toLowerCase() !== email.toLowerCase()
+    ) {
+      throw new ForbiddenException('No tienes permiso para acceder a esta cuenta.');
+    }
     return this.userService.getUserByEmail(email);
   }
 
@@ -509,15 +611,20 @@ export class UsersController {
   updateUser(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @Req() request: AuthenticatedRequest,
   ) {
+    this.assertCanAccessUser(request, id);
     return this.userService.updateUser(String(id), updateUserDto);
   }
 
   @HttpCode(200)
   @Delete(':id')
   @UseGuards(AuthGuard)
-  deleteUser(@Param('id', ParseUUIDPipe) id: string) {
-    console.log('users controller delete');
+  deleteUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    this.assertCanAccessUser(request, id);
     return this.userService.deleteUser(id);
   }
 }

@@ -7,10 +7,17 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+  ) {}
 
   canActivate(
     context: ExecutionContext,
@@ -28,26 +35,62 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('No autorizado');
     }
 
+    let tokenPayload: {
+      id?: string;
+      userId?: string;
+      sub?: string;
+      [key: string]: unknown;
+    };
     try {
       const secret = process.env.JWT_SECRET;
-      const user = this.jwtService.verify(token, { secret });
-
-      user.exp = new Date(user.exp * 1000);
-      user.iat = new Date(user.iat * 1000);
-
-      // Asignar roles basado en isadmin
-      if (user.isadmin) {
-        user.roles = ['admin']; // Asignar rol admin
-      } else {
-        user.roles = ['user']; // Asignar rol user
-      }
-
-      request.user = user;
-
-      return true; // Si la autenticación es válida, permite el acceso
+      tokenPayload = this.jwtService.verify(token, { secret });
     } catch {
       throw new UnauthorizedException('No autorizado');
     }
+
+    return this.validateActiveUser(request, tokenPayload);
+  }
+
+  private async validateActiveUser(
+    request: Request,
+    tokenPayload: {
+      id?: string;
+      userId?: string;
+      sub?: string;
+      [key: string]: unknown;
+    },
+  ): Promise<boolean> {
+    const userId = tokenPayload.id ?? tokenPayload.userId ?? tokenPayload.sub;
+    if (!userId) {
+      throw new UnauthorizedException('No autorizado');
+    }
+
+    const account = await this.usersRepository.findOneBy({ id: userId });
+    if (!account?.isActive) {
+      throw new UnauthorizedException('La cuenta está desactivada.');
+    }
+
+    const merchantOwner = account.merchantOwnerId
+      ? await this.usersRepository.findOneBy({
+          id: account.merchantOwnerId,
+        })
+      : account;
+
+    if (!merchantOwner?.isActive) {
+      throw new UnauthorizedException('La cuenta del comercio está desactivada.');
+    }
+
+    request.user = {
+      ...tokenPayload,
+      id: account.id,
+      email: account.email,
+      isadmin: account.isAdmin,
+      merchantOwnerId: account.merchantOwnerId,
+      merchantOwnerEmail: merchantOwner.email,
+      roles: account.isAdmin ? ['admin'] : ['user'],
+    };
+
+    return true;
   }
 }
 

@@ -45,6 +45,20 @@ export class User {
   @Column({ type: 'boolean', default: false })
   isAdmin?: boolean;
 
+  @Column({
+    name: 'merchant_owner_id',
+    type: 'uuid',
+    nullable: true,
+  })
+  merchantOwnerId?: string | null;
+
+  @Column({
+    name: 'is_active',
+    type: 'boolean',
+    default: true,
+  })
+  isActive?: boolean;
+
   @Column({ nullable: true })
   publicIdUser: string;
 
