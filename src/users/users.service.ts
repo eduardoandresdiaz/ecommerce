@@ -104,7 +104,10 @@ export class UserService {
   async deactivateEmployee(
     ownerId: string,
     employeeId: string,
-  ): Promise<{ message: string }> {
+  ): Promise<{
+    message: string;
+    employee: { id: string; name: string; email: string };
+  }> {
     await this.assertMerchantOwner(ownerId);
 
     const employee = await this.userRepository.findEmployee(
@@ -123,6 +126,11 @@ export class UserService {
 
     return {
       message: 'Empleado desactivado correctamente.',
+      employee: {
+        id: employee.id,
+        name: employee.name,
+        email: employee.email,
+      },
     };
   }
 

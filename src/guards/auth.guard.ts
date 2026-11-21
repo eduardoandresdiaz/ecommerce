@@ -84,6 +84,7 @@ export class AuthGuard implements CanActivate {
       ...tokenPayload,
       id: account.id,
       email: account.email,
+      name: account.name,
       isadmin: account.isAdmin,
       merchantOwnerId: account.merchantOwnerId,
       merchantOwnerEmail: merchantOwner.email,

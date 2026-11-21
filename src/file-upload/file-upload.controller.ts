@@ -16,11 +16,14 @@ import { FileUploadService } from './file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '../guards/auth.guard';
 import { Request } from 'express';
+import { ActivityLogsService } from '../activity-logs/activity-logs.service';
 
 interface AuthenticatedRequest extends Request {
   user?: {
     id?: string;
     email?: string;
+    name?: string;
+    merchantOwnerId?: string | null;
     merchantOwnerEmail?: string;
     isadmin?: boolean;
   };
@@ -28,7 +31,10 @@ interface AuthenticatedRequest extends Request {
 
 @Controller('file-upload')
 export class FileUploadController {
-  constructor(private readonly fileUploadService: FileUploadService) {}
+  constructor(
+    private readonly fileUploadService: FileUploadService,
+    private readonly activityLogsService: ActivityLogsService,
+  ) {}
 
   private getMerchantEmail(request: AuthenticatedRequest): string {
     const email = request.user?.merchantOwnerEmail ?? request.user?.email;
@@ -61,7 +67,14 @@ export class FileUploadController {
       id,
       this.getMerchantEmail(request),
     );
-    return this.fileUploadService.uploadProductImage(file, id);
+    const product = await this.fileUploadService.uploadProductImage(file, id);
+    await this.activityLogsService.recordForActor(request.user, {
+      action: 'product.image_updated',
+      entityType: 'product',
+      entityId: id,
+      changes: { name: product.name },
+    });
+    return product;
   }
 
   @Post('uploadProfileImage/:userId')
@@ -96,7 +109,13 @@ export class FileUploadController {
       this.getMerchantEmail(request),
       productId,
     );
-    return this.fileUploadService.deleteImage(publicId);
+    const result = await this.fileUploadService.deleteImage(publicId);
+    await this.activityLogsService.recordForActor(request.user, {
+      action: 'product.image_deleted',
+      entityType: 'product',
+      entityId: productId,
+    });
+    return result;
   }
 
   @Delete('deleteProfileImage/:publicId') // ✅ ESTE

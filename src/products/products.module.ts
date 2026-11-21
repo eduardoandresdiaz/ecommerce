@@ -7,10 +7,12 @@ import { Product } from './products.entity';
 import { Category } from '../categories/categories.entity';
 import { CategoriesRepository } from '../categories/categories.repository';
 import { User } from '../users/user.entity';
+import { ActivityLogsModule } from '../activity-logs/activity-logs.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Product, User]),
     TypeOrmModule.forFeature([Category]),
+    ActivityLogsModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsService, ProductRepository, CategoriesRepository],

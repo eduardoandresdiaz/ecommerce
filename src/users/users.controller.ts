@@ -22,6 +22,7 @@ import { CreateEmployeeDto } from '../dto/create-employee.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
+import { ActivityLogsService } from '../activity-logs/activity-logs.service';
 
 interface AuthenticatedRequest {
   user?: {
@@ -29,13 +30,17 @@ interface AuthenticatedRequest {
     email?: string;
     merchantOwnerId?: string | null;
     merchantOwnerEmail?: string;
+    name?: string;
     isadmin?: boolean;
   };
 }
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly activityLogsService: ActivityLogsService,
+  ) {}
 
   private getAuthenticatedUser(request: AuthenticatedRequest) {
     if (!request.user?.id || !request.user.email) {
@@ -87,7 +92,7 @@ export class UsersController {
   @ApiBearerAuth()
   @Post('employees')
   @UseGuards(AuthGuard)
-  createEmployee(
+  async createEmployee(
     @Req() request: AuthenticatedRequest,
     @Body() employeeData: CreateEmployeeDto,
   ) {
@@ -97,13 +102,26 @@ export class UsersController {
         'Solo el dueño de un comercio puede crear empleados.',
       );
     }
-    return this.userService.createEmployee(user.id, employeeData);
+    const employee = await this.userService.createEmployee(
+      user.id,
+      employeeData,
+    );
+    await this.activityLogsService.recordForActor(user, {
+      action: 'employee.created',
+      entityType: 'employee',
+      entityId: employee.id,
+      changes: {
+        name: employee.name,
+        email: employee.email,
+      },
+    });
+    return employee;
   }
 
   @ApiBearerAuth()
   @Patch('employees/:id/deactivate')
   @UseGuards(AuthGuard)
-  deactivateEmployee(
+  async deactivateEmployee(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) employeeId: string,
   ) {
@@ -113,7 +131,20 @@ export class UsersController {
         'Solo el dueño de un comercio puede desactivar empleados.',
       );
     }
-    return this.userService.deactivateEmployee(user.id, employeeId);
+    const result = await this.userService.deactivateEmployee(
+      user.id,
+      employeeId,
+    );
+    await this.activityLogsService.recordForActor(user, {
+      action: 'employee.deactivated',
+      entityType: 'employee',
+      entityId: result.employee.id,
+      changes: {
+        name: result.employee.name,
+        email: result.employee.email,
+      },
+    });
+    return { message: result.message };
   }
 
   @HttpCode(200)

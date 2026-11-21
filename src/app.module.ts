@@ -9,6 +9,7 @@ import { OrdersModule } from './orders/orders.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ShareController } from './share.controller';
 import { ProductRequestsModule } from './product-requests/product-requests.module';
+import { ActivityLogsModule } from './activity-logs/activity-logs.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ProductRequestsModule } from './product-requests/product-requests.modul
 
     // Módulo de faltantes
     ProductRequestsModule,
+    ActivityLogsModule,
 
     JwtModule.register({
       global: true,

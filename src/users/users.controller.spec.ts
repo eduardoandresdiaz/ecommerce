@@ -5,6 +5,7 @@ import { AuthGuard } from '../guards/auth.guard'; // Ruta relativa
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service'; // Ruta relativa
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ActivityLogsService } from '../activity-logs/activity-logs.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -68,6 +69,12 @@ describe('UsersController', () => {
             createUser: jest.fn(),
             updateUser: jest.fn(),
             deleteUser: jest.fn(),
+          },
+        },
+        {
+          provide: ActivityLogsService,
+          useValue: {
+            recordForActor: jest.fn(),
           },
         },
         {

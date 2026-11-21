@@ -5,6 +5,7 @@ import { ProductRequest } from './product-request.entity';
 import { ProductRequestsService } from './product-requests.service';
 import { ProductRequestsController } from './product-requests.controller';
 import { User } from '../users/user.entity';
+import { ActivityLogsModule } from '../activity-logs/activity-logs.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { User } from '../users/user.entity';
       ProductRequest,
       User,
     ]),
+    ActivityLogsModule,
   ],
 
   controllers: [

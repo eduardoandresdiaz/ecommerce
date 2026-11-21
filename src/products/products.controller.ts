@@ -32,18 +32,24 @@ import {
   getProductIdFromShareKey,
   getProductShareUrl,
 } from '../utils/product-share-link';
+import { ActivityLogsService } from '../activity-logs/activity-logs.service';
 
 interface AuthenticatedRequest extends Request {
   user?: {
     id?: string;
     email?: string;
+    name?: string;
+    merchantOwnerId?: string | null;
     merchantOwnerEmail?: string;
   };
 }
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly activityLogsService: ActivityLogsService,
+  ) {}
 
   private getMerchantEmail(request: AuthenticatedRequest): string {
     const email = request.user?.merchantOwnerEmail ?? request.user?.email;
@@ -56,7 +62,7 @@ export class ProductsController {
   private async assertProductBelongsToMerchant(
     request: AuthenticatedRequest,
     productId: string,
-  ): Promise<string> {
+  ): Promise<Product> {
     const merchantEmail = this.getMerchantEmail(request);
     const product = await this.productsService.getProductById(productId);
     if (product.creatorEmail.toLowerCase() !== merchantEmail.toLowerCase()) {
@@ -64,7 +70,7 @@ export class ProductsController {
         'No tienes permiso para modificar este producto.',
       );
     }
-    return merchantEmail;
+    return product;
   }
 
   @Get('search')
@@ -83,8 +89,24 @@ export class ProductsController {
     if (typeof body.stock !== 'number' || body.stock < 0) {
       throw new HttpException('Stock inválido', HttpStatus.BAD_REQUEST);
     }
-    await this.assertProductBelongsToMerchant(request, id);
-    return await this.productsService.updateStock(id, body.stock);
+    const previousProduct = await this.assertProductBelongsToMerchant(
+      request,
+      id,
+    );
+    const updatedProduct = await this.productsService.updateStock(id, body.stock);
+    await this.activityLogsService.recordForActor(request.user, {
+      action: 'product.stock_changed',
+      entityType: 'product',
+      entityId: id,
+      changes: {
+        name: previousProduct.name,
+        stock: {
+          from: previousProduct.stock,
+          to: updatedProduct.stock,
+        },
+      },
+    });
+    return updatedProduct;
   }
   @HttpCode(200)
   @Get()
@@ -194,7 +216,24 @@ export class ProductsController {
       newProduct.ubicacion = newProduct.ubicacion || null;
       newProduct.fechaCaducidad = newProduct.fechaCaducidad ?? null;
 
-      return await this.productsService.createProduct(newProduct);
+      const result = await this.productsService.createProduct(newProduct);
+      const productId = result.match(/ID:\s*([0-9a-f-]+)/i)?.[1];
+      if (!productId) {
+        throw new HttpException(
+          'No se pudo identificar el producto creado para registrar la actividad.',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      await this.activityLogsService.recordForActor(request.user, {
+        action: 'product.created',
+        entityType: 'product',
+        entityId: productId,
+        changes: {
+          name: newProduct.name,
+          stock: newProduct.stock,
+        },
+      });
+      return result;
 
     }
     throw new HttpException('Producto inválido', HttpStatus.BAD_REQUEST);
@@ -210,10 +249,28 @@ export class ProductsController {
     @Req() request: AuthenticatedRequest,
   ) {
     if (validateProduct(updateData)) {
-      await this.assertProductBelongsToMerchant(request, id);
+      const previousProduct = await this.assertProductBelongsToMerchant(
+        request,
+        id,
+      );
       const safeUpdateData = { ...updateData };
       delete safeUpdateData.creatorEmail;
-      return await this.productsService.updateProduct(id, safeUpdateData);
+      const updatedProduct = await this.productsService.updateProduct(
+        id,
+        safeUpdateData,
+      );
+      const changes = this.getProductChanges(
+        previousProduct,
+        updatedProduct,
+        safeUpdateData,
+      );
+      await this.activityLogsService.recordForActor(request.user, {
+        action: 'product.updated',
+        entityType: 'product',
+        entityId: id,
+        changes,
+      });
+      return updatedProduct;
     }
     throw new HttpException(
       'Datos del producto inválidos',
@@ -228,8 +285,66 @@ export class ProductsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Req() request: AuthenticatedRequest,
   ) {
-    await this.assertProductBelongsToMerchant(request, id);
-    return await this.productsService.deleteProduct(id);
+    const product = await this.assertProductBelongsToMerchant(request, id);
+    const deletedProduct = await this.productsService.deleteProduct(id);
+    await this.activityLogsService.recordForActor(request.user, {
+      action: 'product.deleted',
+      entityType: 'product',
+      entityId: id,
+      changes: { name: product.name },
+    });
+    return deletedProduct;
+  }
+
+  private getProductChanges(
+    previousProduct: Product,
+    updatedProduct: Product,
+    updateData: Partial<Product>,
+  ): Record<string, unknown> {
+    const changes: Record<string, unknown> = {};
+    const trackedFields: (keyof Product)[] = [
+      'name',
+      'price',
+      'stock',
+      'stockminimo',
+      'ubicacion',
+      'proveedor',
+      'mostrarprecio',
+      'resaltaroferta',
+      'nopublicable',
+      'fechaCaducidad',
+      'expiresAt',
+    ];
+
+    for (const field of trackedFields) {
+      if (
+        Object.prototype.hasOwnProperty.call(updateData, field) &&
+        previousProduct[field] !== updatedProduct[field]
+      ) {
+        changes[field] = {
+          from: previousProduct[field],
+          to: updatedProduct[field],
+        };
+      }
+    }
+
+    if (
+      updateData.description !== undefined &&
+      previousProduct.description !== updatedProduct.description
+    ) {
+      changes.description = { updated: true };
+    }
+    if (
+      updateData.category !== undefined &&
+      previousProduct.category?.name !== updatedProduct.category?.name
+    ) {
+      changes.category = {
+        from: previousProduct.category?.name,
+        to: updatedProduct.category?.name,
+      };
+    }
+
+    return changes;
   }
 
   /////////////////// ⭐ AGREGADO CORRECTO

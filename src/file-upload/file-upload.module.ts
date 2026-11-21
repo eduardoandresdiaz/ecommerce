@@ -6,9 +6,10 @@ import { CloudinaryConfig } from '../config/cloudinary';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from '../products/products.entity';
 import { User } from '../users/user.entity';
+import { ActivityLogsModule } from '../activity-logs/activity-logs.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, User])],
+  imports: [TypeOrmModule.forFeature([Product, User]), ActivityLogsModule],
   controllers: [FileUploadController],
   providers: [FileUploadService, FileUploadRepository, CloudinaryConfig],
   exports: [FileUploadService, FileUploadRepository],

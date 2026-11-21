@@ -17,6 +17,7 @@ import {
   import { ProductRequestsService } from './product-requests.service';
   import { CreateProductRequestDto } from './dto/create-product-request.dto';
   import { ReassignProductRequestDto } from './dto/reassign-product-request.dto';
+  import { ActivityLogsService } from '../activity-logs/activity-logs.service';
   
   interface AuthenticatedRequest {
     user?: {
@@ -24,6 +25,8 @@ import {
       userId?: string;
       sub?: string;
       merchantOwnerId?: string | null;
+      name?: string;
+      email?: string;
     };
   }
   
@@ -32,6 +35,7 @@ import {
   export class ProductRequestsController {
     constructor(
       private readonly productRequestsService: ProductRequestsService,
+      private readonly activityLogsService: ActivityLogsService,
     ) {}
   
     private getOwnerId(request: AuthenticatedRequest): string {
@@ -55,16 +59,26 @@ import {
      * POST /product-requests
      */
     @Post()
-    create(
+    async create(
       @Req() request: AuthenticatedRequest,
       @Body() createProductRequestDto: CreateProductRequestDto,
     ) {
       const ownerId = this.getOwnerId(request);
   
-      return this.productRequestsService.create(
+      const productRequest = await this.productRequestsService.create(
         ownerId,
         createProductRequestDto,
       );
+      await this.activityLogsService.recordForActor(request.user, {
+        action: 'product_request.created',
+        entityType: 'product_request',
+        entityId: productRequest.id,
+        changes: {
+          supplierName: productRequest.supplierName,
+          requestedQuantity: productRequest.requestedQuantity,
+        },
+      });
+      return productRequest;
     }
   
     /*
@@ -123,44 +137,79 @@ import {
  * PATCH /product-requests/:id/mark-as-ordered
  */
 @Patch(':id/mark-as-ordered')
-markAsOrdered(
+async markAsOrdered(
   @Req() request: AuthenticatedRequest,
   @Param('id', ParseUUIDPipe) requestId: string,
 ) {
   const ownerId = this.getOwnerId(request);
 
-  return this.productRequestsService.markAsOrdered(
+  const result = await this.productRequestsService.markAsOrdered(
     ownerId,
     requestId,
   );
+  await this.activityLogsService.recordForActor(request.user, {
+    action: 'product_request.ordered',
+    entityType: 'product_request',
+    entityId: requestId,
+    changes: {
+      supplierName: result.productRequest.supplierName,
+      requestedQuantity: result.productRequest.requestedQuantity,
+    },
+  });
+  return result;
 }
 
 @Patch(':id/mark-as-unavailable')
-markAsUnavailable(
+async markAsUnavailable(
   @Req() request: AuthenticatedRequest,
   @Param('id', ParseUUIDPipe) requestId: string,
 ) {
   const ownerId = this.getOwnerId(request);
 
-  return this.productRequestsService.markAsUnavailable(
+  const result = await this.productRequestsService.markAsUnavailable(
     ownerId,
     requestId,
   );
+  await this.activityLogsService.recordForActor(request.user, {
+    action: 'product_request.unavailable',
+    entityType: 'product_request',
+    entityId: requestId,
+    changes: {
+      supplierName: result.productRequest.supplierName,
+      requestedQuantity: result.productRequest.requestedQuantity,
+    },
+  });
+  return result;
 }
 
 @Post(':id/reassign')
-reassignToSupplier(
+async reassignToSupplier(
   @Req() request: AuthenticatedRequest,
   @Param('id', ParseUUIDPipe) requestId: string,
   @Body() reassignProductRequestDto: ReassignProductRequestDto,
 ) {
   const ownerId = this.getOwnerId(request);
+  const previousRequest = await this.productRequestsService.findOne(
+    ownerId,
+    requestId,
+  );
 
-  return this.productRequestsService.reassignToSupplier(
+  const result = await this.productRequestsService.reassignToSupplier(
     ownerId,
     requestId,
     reassignProductRequestDto.supplierName,
   );
+  await this.activityLogsService.recordForActor(request.user, {
+    action: 'product_request.reassigned',
+    entityType: 'product_request',
+    entityId: requestId,
+    changes: {
+      fromSupplier: previousRequest.supplierName,
+      toSupplier: result.productRequest.supplierName,
+      derivedRequestId: result.productRequest.id,
+    },
+  });
+  return result;
 }
 
   
@@ -186,15 +235,29 @@ reassignToSupplier(
      * DELETE /product-requests/:id
      */
     @Delete(':id')
-    remove(
+    async remove(
       @Req() request: AuthenticatedRequest,
       @Param('id', ParseUUIDPipe) requestId: string,
     ) {
       const ownerId = this.getOwnerId(request);
   
-      return this.productRequestsService.remove(
+      const productRequest = await this.productRequestsService.findOne(
         ownerId,
         requestId,
       );
+      const result = await this.productRequestsService.remove(
+        ownerId,
+        requestId,
+      );
+      await this.activityLogsService.recordForActor(request.user, {
+        action: 'product_request.deleted',
+        entityType: 'product_request',
+        entityId: requestId,
+        changes: {
+          supplierName: productRequest.supplierName,
+          requestedQuantity: productRequest.requestedQuantity,
+        },
+      });
+      return result;
     }
   }

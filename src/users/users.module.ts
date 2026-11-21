@@ -7,9 +7,14 @@ import { LoggerMiddleware } from '../middlewares/logger.middleware';
 import { User } from './user.entity';
 import { CloudinaryConfig } from '../config/cloudinary';
 import { FileUploadModule } from '../file-upload/file-upload.module';
+import { ActivityLogsModule } from '../activity-logs/activity-logs.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), FileUploadModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    FileUploadModule,
+    ActivityLogsModule,
+  ],
   providers: [UserService, UserRepository, CloudinaryConfig],
   controllers: [UsersController],
   exports: [UserService, UserRepository],
