@@ -71,6 +71,15 @@ import {
     requestedQuantity: number;
   
     @Column({
+      name: 'derived_suppliers',
+      type: 'text',
+      array: true,
+      nullable: false,
+      default: () => 'ARRAY[]::text[]',
+    })
+    derivedSuppliers: string[] = [];
+
+    @Column({
       name: 'requested_at',
       type: 'timestamp without time zone',
       nullable: false,

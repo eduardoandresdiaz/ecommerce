@@ -32,29 +32,10 @@ export class ProductRequestsService {
     ownerId: string,
     createProductRequestDto: CreateProductRequestDto,
   ): Promise<ProductRequest> {
-    const user = await this.userRepository.findOne({
-      where: {
-        id: ownerId,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('El comercio autenticado no existe.');
-    }
-
-    const supplierName = createProductRequestDto.supplierName.trim();
-
-    const selectedSupplier = user.proveedores?.find(
-      (supplier) =>
-        supplier.empresa.trim().toLowerCase() ===
-        supplierName.toLowerCase(),
+    const supplierName = await this.getRegisteredSupplierName(
+      ownerId,
+      createProductRequestDto.supplierName,
     );
-
-    if (!selectedSupplier) {
-      throw new BadRequestException(
-        'El proveedor seleccionado no pertenece a este comercio.',
-      );
-    }
 
     const productDetail =
       createProductRequestDto.productDetail.trim();
@@ -66,26 +47,47 @@ export class ProductRequestsService {
     }
 
     const productRequest = this.productRequestRepository.create({
-      ownerId: user.id,
-
-      // Guarda el nombre exactamente como está registrado en users.proveedores.
-      supplierName: selectedSupplier.empresa.trim(),
-
+      ownerId,
+      supplierName,
       productDetail,
-
       currentStock: createProductRequestDto.currentStock,
-
       requestedQuantity:
         createProductRequestDto.requestedQuantity,
-
       status: 'PENDIENTE',
-
       requestedAt: new Date(),
-
       orderedAt: null,
     });
 
     return await this.productRequestRepository.save(productRequest);
+  }
+
+  private async getRegisteredSupplierName(
+    ownerId: string,
+    supplierName: string,
+  ): Promise<string> {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: ownerId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('El comercio autenticado no existe.');
+    }
+
+    const selectedSupplier = user.proveedores?.find(
+      (supplier) =>
+        supplier.empresa.trim().toLowerCase() ===
+        supplierName.trim().toLowerCase(),
+    );
+
+    if (!selectedSupplier) {
+      throw new BadRequestException(
+        'El proveedor seleccionado no pertenece a este comercio.',
+      );
+    }
+
+    return selectedSupplier.empresa.trim();
   }
 
   /*
@@ -295,5 +297,93 @@ export class ProductRequestsService {
       message: 'Producto marcado como no disponible correctamente.',
       productRequest: updatedProductRequest,
     };
+  }
+
+  async reassignToSupplier(
+    ownerId: string,
+    requestId: string,
+    supplierName: string,
+  ): Promise<{
+    message: string;
+    productRequest: ProductRequest;
+    derivedSuppliers: string[];
+  }> {
+    const registeredSupplierName =
+      await this.getRegisteredSupplierName(ownerId, supplierName);
+
+    return this.productRequestRepository.manager.transaction(
+      async (manager) => {
+        const repository = manager.getRepository(ProductRequest);
+        const unavailableRequest = await repository.findOne({
+          where: {
+            id: requestId,
+            ownerId,
+          },
+          lock: {
+            mode: 'pessimistic_write',
+          },
+        });
+
+        if (!unavailableRequest) {
+          throw new NotFoundException(
+            'El faltante solicitado no existe.',
+          );
+        }
+
+        if (unavailableRequest.status !== 'NO_DISPONIBLE') {
+          throw new BadRequestException(
+            'Solamente se pueden derivar productos no disponibles.',
+          );
+        }
+
+        const derivedSuppliers =
+          unavailableRequest.derivedSuppliers ?? [];
+        const yaDerivado = derivedSuppliers.some(
+          (existingSupplier) =>
+            existingSupplier.toLowerCase() ===
+            registeredSupplierName.toLowerCase(),
+        );
+
+        if (yaDerivado) {
+          throw new BadRequestException(
+            'Este producto ya fue derivado a ese proveedor.',
+          );
+        }
+
+        if (
+          unavailableRequest.supplierName.toLowerCase() ===
+          registeredSupplierName.toLowerCase()
+        ) {
+          throw new BadRequestException(
+            'Debes seleccionar un proveedor distinto al original.',
+          );
+        }
+
+        const newRequest = repository.create({
+          ownerId,
+          supplierName: registeredSupplierName,
+          productDetail: unavailableRequest.productDetail,
+          currentStock: unavailableRequest.currentStock,
+          requestedQuantity: unavailableRequest.requestedQuantity,
+          status: 'PENDIENTE',
+          requestedAt: new Date(),
+          orderedAt: null,
+        });
+
+        await repository.save(newRequest);
+
+        unavailableRequest.derivedSuppliers = [
+          ...derivedSuppliers,
+          registeredSupplierName,
+        ];
+        await repository.save(unavailableRequest);
+
+        return {
+          message: 'Producto derivado correctamente.',
+          productRequest: newRequest,
+          derivedSuppliers: unavailableRequest.derivedSuppliers,
+        };
+      },
+    );
   }
 }

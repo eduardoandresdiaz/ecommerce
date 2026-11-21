@@ -18,14 +18,11 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const authHeader = request.headers.authorization;
 
-    console.log('Authorization Header:', authHeader); // Log del encabezado de autorización
-
     if (!authHeader) {
       throw new UnauthorizedException('No autorizado');
     }
 
     const token = authHeader.split(' ')[1];
-    console.log('Token:', token); // Log del token
 
     if (!token) {
       throw new UnauthorizedException('No autorizado');
@@ -34,8 +31,6 @@ export class AuthGuard implements CanActivate {
     try {
       const secret = process.env.JWT_SECRET;
       const user = this.jwtService.verify(token, { secret });
-
-      console.log('User Payload:', user); // Log del payload del token
 
       user.exp = new Date(user.exp * 1000);
       user.iat = new Date(user.iat * 1000);
@@ -49,11 +44,8 @@ export class AuthGuard implements CanActivate {
 
       request.user = user;
 
-      console.log('User:', request.user); // Log del usuario final con roles asignados
-
       return true; // Si la autenticación es válida, permite el acceso
-    } catch (error) {
-      console.error('Token validation error:', error); // Log del error de validación del token
+    } catch {
       throw new UnauthorizedException('No autorizado');
     }
   }

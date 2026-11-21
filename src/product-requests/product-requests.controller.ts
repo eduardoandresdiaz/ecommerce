@@ -16,6 +16,7 @@ import {
   import { AuthGuard } from '../guards/auth.guard';
   import { ProductRequestsService } from './product-requests.service';
   import { CreateProductRequestDto } from './dto/create-product-request.dto';
+  import { ReassignProductRequestDto } from './dto/reassign-product-request.dto';
   
   interface AuthenticatedRequest {
     user?: {
@@ -142,6 +143,21 @@ markAsUnavailable(
   return this.productRequestsService.markAsUnavailable(
     ownerId,
     requestId,
+  );
+}
+
+@Post(':id/reassign')
+reassignToSupplier(
+  @Req() request: AuthenticatedRequest,
+  @Param('id', ParseUUIDPipe) requestId: string,
+  @Body() reassignProductRequestDto: ReassignProductRequestDto,
+) {
+  const ownerId = this.getOwnerId(request);
+
+  return this.productRequestsService.reassignToSupplier(
+    ownerId,
+    requestId,
+    reassignProductRequestDto.supplierName,
   );
 }
 

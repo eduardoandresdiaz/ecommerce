@@ -18,15 +18,6 @@ import { ProductRequest } from '../product-requests/product-request.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        // Log temporal para verificar las credenciales
-        console.log('Credenciales cargadas:', {
-          host: configService.get<string>('DB_HOST'),
-          port: configService.get<string>('DB_PORT'),
-          username: configService.get<string>('DB_USERNAME'),
-          password: configService.get<string>('DB_PASSWORD'),
-          database: configService.get<string>('DB_NAME'),
-        });
-
         return {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),

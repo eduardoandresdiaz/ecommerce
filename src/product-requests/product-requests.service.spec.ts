@@ -6,10 +6,30 @@ import { ProductRequestsService } from './product-requests.service';
 import { User } from '../users/user.entity';
 
 describe('ProductRequestsService', () => {
+  const transactionRepository = {
+    findOne: jest.fn(),
+    create: jest.fn((values: Partial<ProductRequest>) =>
+      Object.assign(new ProductRequest(), values),
+    ),
+    save: jest.fn(async (request: ProductRequest) => request),
+  };
+  const transactionManager = {
+    getRepository: jest.fn().mockReturnValue(transactionRepository),
+  };
+  const userRepository = {
+    findOne: jest.fn(),
+  };
   const productRequestRepository = {
     find: jest.fn(),
     findOne: jest.fn(),
     save: jest.fn(),
+    manager: {
+      transaction: jest.fn(
+        (
+          callback: (manager: typeof transactionManager) => unknown,
+        ) => Promise.resolve(callback(transactionManager)),
+      ),
+    },
   };
 
   let service: ProductRequestsService;
@@ -26,7 +46,7 @@ describe('ProductRequestsService', () => {
         },
         {
           provide: getRepositoryToken(User),
-          useValue: {},
+          useValue: userRepository,
         },
       ],
     }).compile();
@@ -84,5 +104,39 @@ describe('ProductRequestsService', () => {
       service.markAsUnavailable('owner-id', 'request-id'),
     ).rejects.toThrow(BadRequestException);
     expect(productRequestRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('creates a pending request and records the destination supplier', async () => {
+    const unavailableRequest = Object.assign(new ProductRequest(), {
+      id: 'request-id',
+      ownerId: 'owner-id',
+      supplierName: 'Proveedor A',
+      productDetail: 'Producto de prueba',
+      currentStock: 2,
+      requestedQuantity: 5,
+      derivedSuppliers: [],
+    });
+    unavailableRequest.status = 'NO_DISPONIBLE';
+    userRepository.findOne.mockResolvedValue({
+      proveedores: [{ empresa: 'Proveedor B' }],
+    });
+    transactionRepository.findOne.mockResolvedValue(
+      unavailableRequest,
+    );
+
+    const result = await service.reassignToSupplier(
+      'owner-id',
+      'request-id',
+      'Proveedor B',
+    );
+
+    expect(result.productRequest.supplierName).toBe('Proveedor B');
+    expect(result.productRequest.productDetail).toBe(
+      'Producto de prueba',
+    );
+    expect(result.productRequest.status).toBe('PENDIENTE');
+    expect(result.derivedSuppliers).toEqual(['Proveedor B']);
+    expect(unavailableRequest.derivedSuppliers).toEqual(['Proveedor B']);
+    expect(transactionRepository.save).toHaveBeenCalledTimes(2);
   });
 });
