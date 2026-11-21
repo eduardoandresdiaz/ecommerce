@@ -14,7 +14,8 @@ import {
     | 'PENDIENTE'
     | 'PEDIDO'
     | 'RECIBIDO'
-    | 'CANCELADO';
+    | 'CANCELADO'
+    | 'NO_DISPONIBLE';
   
   @Entity({ name: 'product_requests' })
   export class ProductRequest {

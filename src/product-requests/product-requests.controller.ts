@@ -75,6 +75,13 @@ import {
       return this.productRequestsService.findAllPending(ownerId);
     }
   
+    @Get('unavailable')
+    findUnavailable(@Req() request: AuthenticatedRequest) {
+      const ownerId = this.getOwnerId(request);
+
+      return this.productRequestsService.findUnavailable(ownerId);
+    }
+
     /*
      * Obtener faltantes pendientes por proveedor.
      * GET /product-requests/pending-by-supplier?supplierName=Ingersoll
@@ -120,6 +127,19 @@ markAsOrdered(
   const ownerId = this.getOwnerId(request);
 
   return this.productRequestsService.markAsOrdered(
+    ownerId,
+    requestId,
+  );
+}
+
+@Patch(':id/mark-as-unavailable')
+markAsUnavailable(
+  @Req() request: AuthenticatedRequest,
+  @Param('id', ParseUUIDPipe) requestId: string,
+) {
+  const ownerId = this.getOwnerId(request);
+
+  return this.productRequestsService.markAsUnavailable(
     ownerId,
     requestId,
   );

@@ -141,6 +141,21 @@ export class ProductRequestsService {
     });
   }
 
+  async findUnavailable(
+    ownerId: string,
+  ): Promise<ProductRequest[]> {
+    return await this.productRequestRepository.find({
+      where: {
+        ownerId,
+        status: 'NO_DISPONIBLE',
+      },
+      order: {
+        supplierName: 'ASC',
+        requestedAt: 'ASC',
+      },
+    });
+  }
+
   /*
    * Obtener un faltante por ID.
    *
@@ -251,4 +266,34 @@ export class ProductRequestsService {
       message: 'Producto marcado como pedido correctamente.',
       productRequest: updatedProductRequest,
     };
-  }}
+  }
+
+  async markAsUnavailable(
+    ownerId: string,
+    requestId: string,
+  ): Promise<{
+    message: string;
+    productRequest: ProductRequest;
+  }> {
+    const productRequest = await this.findOne(
+      ownerId,
+      requestId,
+    );
+
+    if (productRequest.status !== 'PENDIENTE') {
+      throw new BadRequestException(
+        'Solamente se pueden marcar como no disponibles los faltantes pendientes.',
+      );
+    }
+
+    productRequest.status = 'NO_DISPONIBLE';
+
+    const updatedProductRequest =
+      await this.productRequestRepository.save(productRequest);
+
+    return {
+      message: 'Producto marcado como no disponible correctamente.',
+      productRequest: updatedProductRequest,
+    };
+  }
+}
